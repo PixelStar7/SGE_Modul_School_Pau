@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+    <!-- Estructura de navegació Superior -->
+    <menuitem name="School" id="menu_root"/>
+
+    <menuitem name="Configuration" id="menu_configuration" parent="menu_root" sequence="99"/>
+    
+
+    <!-- GESTIÓ DE CURSOS -->
+
+    <!-- Vista Llista de Cursos-->
+    <record model="ir.ui.view" id="school_course_list">
+        <field name="name">school.course.list</field>
+        <field name="model">school.course</field>
+        <field name="arch" type="xml">
+            <!--La llista és editable per a que no hi hagi d'haver un formulari de només 2 camps-->
+            <list string="Courses" editable="top"> <!-- Top / Bottom -->
+                <field name="name"></field>
+                <!-- El camp marcat amb invisible no apareix a la vista (per a fer referències)-->
+                <field name="hours" invisible="name>'E'"></field>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Formulari de Cursos -->
+     <!-- Aquest formulari no s'obrirà perque tenim editable="top" a la list-->
+    <record model="ir.ui.view" id="school_course_form">
+        <field name="name">school.course.form</field>
+        <field name="model">school.course</field>
+        <field name="arch" type="xml">
+            <form string="Course">
+                <group> <!--group és obligatori-->
+                    <field name="name"></field>
+                    <field name="hours"></field>
+                    <field name="manager_id"></field>
+
+                    <!-- Aquests camps sempre són readonly per defecte en Odoo -->
+                    <field name="create_uid" optional="show"></field>
+                    <field name="create_date" optional="show"></field>
+                    <field name="write_uid" optional="hide"></field>
+                    <field name="write_date" optional="hide"></field>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acció de Cursos -->
+    <record model="ir.actions.act_window" id="school_course_action">
+        <field name="name">Courses</field>
+        <field name="res_model">school.course</field>
+        <field name="view_mode">list, form</field>
+    </record>
+
+    <!-- Submenu de Cursos -->
+    <menuitem name="Courses" id="menu_courses" parent="menu_configuration" action="school_course_action"/>
+
+
+    <!-- GESTIÓ D'ASSIGNATURES -->
+    
+    <!-- Vista Llista d'Assignatures -->
+    <record model="ir.ui.view" id="school_subject_list">
+        <field name="name">school.subject.list</field>
+        <field name="model">school.subject</field>
+        <field name="arch" type="xml">
+            <list string="Subjects">
+                <field name="name"></field>
+                <field name="hours"></field>
+                <field name="create_uid" optional="show"></field>
+                <field name="create_date" optional="show"></field>
+                <field name="write_uid" optional="hide"></field>
+                <field name="write_date" optional="hide"></field>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Formulari d'Assignatures -->
+    <record model="ir.ui.view" id="school_subject_form">
+        <field name="name">school.subject.form</field>
+        <field name="model">school.subject</field>
+        <field name="arch" type="xml">
+            <form string="Subject">
+                <!-- "sheet" genera el requadre per al formulari -->
+                <sheet>
+                    <group col="4">
+                        <group colspan="3">
+                            <field name="name" placeholder="Introdueixi el nom..."></field>
+                        </group>
+                        <!-- Sense posar el colspan, ocupa l'espai restant -->
+                        <group>
+                            <field name="hours" placeholder="???"></field>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acció d'Assignatures -->
+    <record model="ir.actions.act_window" id="school_subject_action">
+    <field name="name">Subjects</field>
+    <field name="res_model">school.subject</field>
+    <field name="view_mode">list, form</field>
+    </record>
+
+    <!-- Submenu de d'Assignatures -->
+    <menuitem name="Subjects" id="menu_subjects" parent="menu_configuration" action="school_subject_action"/>
+
+
+    <!-- GESTIÓ DE PROFESSORS -->
+    
+    <!-- Vista Llista de Professors -->
+    <record model="ir.ui.view" id="school_teacher_list">
+        <field name="name">school.teacher.list</field>
+        <field name="model">school.teacher</field>
+        <field name="arch" type="xml">
+            <list string="Teachers">
+                <field name="first_name"></field>
+                <field name="last_name"></field>
+                <field name="birthdate"></field>
+                <field name="tin"></field>
+                <field name="gender"></field>
+                <field name="salary"></field>
+                <field name="email"></field>
+                <field name="phone"></field>
+                <!-- Amb el One2Many, podem veure els cursos de cada Professor afegint el field -->
+                <field name="course_ids" optional="hide"></field> <!-- Camp que podem veure anant als 3 punts de la dreta -->
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Formulari de Professors -->
+    <record model="ir.ui.view" id="school_teacher_form">
+        <field name="name">school.teacher.form</field>
+        <field name="model">school.teacher</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group> <!-- col = "4" -->
+                        <group string="Personal data" col="8">
+                            <!-- Si no posem colspan="8", només agafaria "2", valor per defecte -->
+                            <field name="first_name" colspan="8" placeholder="???"></field>
+                            <field name="last_name" colspan="8" placeholder="???"></field>
+                            <field name="gender" colspan="3" placeholder="???"></field>
+                            <field name="birthdate" colspan="5" placeholder="???" required="0"></field>
+                        </group>
+
+                        <group string="Other data" col="4">
+                            <field name="email" widget="email" colspan="4" placeholder="???"></field>
+                            <field name="phone" colspan="4" placeholder="???" required="0"></field>
+                            <!-- No l'hi hem posat res, colspan="2" PER DEFECTE -->
+                            <field name="tin" placeholder="???" required="True"></field>
+                            <field name="salary" placeholder="???"></field>
+                        </group>
+
+                        <group string="Courses Manager">
+                            <!-- El nolabel="1" serveix per treure l'etiqueta del camp (course_ids) -->
+                            <field name="course_ids" nolabel="1" readonly="0"> <!-- Fem que no sigui readonly NOMÉS en aquest formulari -->
+                                <!-- Per veure NOMÉS els camps que volguem i en l'ordre que volguem, -->
+                                <!-- fem una list i posem els camps a plaer. -->
+                                <list>
+                                    <field name="name"></field>
+                                    <field name="hours"></field>
+                                </list>
+                            </field>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acció de Professors -->
+    <record model="ir.actions.act_window" id="school_teacher_action">
+        <field name="name">Teachers</field>
+        <field name="res_model">school.teacher</field>
+        <field name="view_mode">list, form</field>
+    </record>
+
+    <!-- Submenu de Professors -->
+    <menuitem name="Teachers" id="menu_teachers" parent="menu_root" sequence="50" action="school_teacher_action"/>
+
+</odoo>
