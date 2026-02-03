@@ -154,12 +154,31 @@
                             <field name="salary" placeholder="???"></field>
                         </group>
 
-                        <group string="Courses Manager">
+                        <group string="Courses Managed">
                             <!-- El nolabel="1" serveix per treure l'etiqueta del camp (course_ids) -->
-                            <field name="course_ids" nolabel="1" readonly="0"> <!-- Fem que no sigui readonly NOMÉS en aquest formulari -->
+                             <!-- El widget="many2many" serveix per a que no es borri del tot el curs, només el treiem del professor -->
+                            <field name="course_ids" nolabel="1" readonly="False" widget="many2many"> <!-- Fem que no sigui readonly NOMÉS en aquest formulari -->
                                 <!-- Per veure NOMÉS els camps que volguem i en l'ordre que volguem, -->
                                 <!-- fem una list i posem els camps a plaer. -->
                                 <list>
+                                    <field name="name"></field>
+                                    <field name="hours"></field>
+                                </list>
+                                <!-- Si volem invocar un formulari custom per a l'inserció d'un curs -->
+                                <form>
+                                    <group>
+                                        <field name="name"></field>
+                                        <field name="hours"></field>
+                                    </group>
+                                </form>
+                            </field>
+                        </group>
+
+                        <group string="Subjects Authorized">
+                            <field name="subject_ids" nolabel="1" readonly="False">
+                                <!-- Per veure NOMÉS els camps que volguem i en l'ordre que volguem, -->
+                                <!-- fem una list i posem els camps a plaer. -->
+                                <list create="0" delete="0"> <!-- create i delete serveixen per amagar les creus o "Nou"-->
                                     <field name="name"></field>
                                     <field name="hours"></field>
                                 </list>

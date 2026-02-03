@@ -23,6 +23,11 @@ class SchoolSubject(models.Model):
     hours = fields.Integer('Hours', required=True)
     active = fields.Boolean('Active', default=True)
 
+    # Relació Many2many (Professors --> Assignatures)
+    # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps / de la nova taula / nom de la relació
+    # El nom de la taula serà el mateix que en l'altre relació a "Teacher", amb les ids canviades d'ordre.
+    teacher_ids = fields.Many2many('school.teacher', 'school_teacher_subject_rel', 'subject_id', 'teacher_id', 'Subjects')
+
 
 class SchoolTeacher(models.Model):
     _name = 'school.teacher'
@@ -45,5 +50,11 @@ class SchoolTeacher(models.Model):
     email = fields.Char('eMail', size=60, required=True)
     phone = fields.Char('Phone')
 
-    # Relació One2many (Curs --> Professors).
+    # Relació One2many (Professor --> Cursos).
+    # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
     course_ids = fields.One2many('school.course', 'manager_id', 'Courses', readonly=True)
+
+    # Relació Many2many (Professors --> Assignatures)
+    # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps / de la nova taula / nom de la relació
+    # El nom de la taula serà el mateix que en l'altre relació a "Subject", amb les ids canviades d'ordre.
+    subject_ids = fields.Many2many('school.subject', 'school_teacher_subject_rel', 'teacher_id', 'subject_id', 'Subjects')
