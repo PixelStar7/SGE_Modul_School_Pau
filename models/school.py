@@ -48,7 +48,7 @@ class SchoolTeacher(models.Model):
     _description = 'Teacher Management'
     # Com no hi ha camp "name", haurem d'usar '_rec_name':
     # I si volem tenir el nom complet (first + last name), hem de programar _compute_display_name
-    _rec_name = 'last_name'
+    _rec_name = 'full_name'
 
     first_name = fields.Char('First Name', size=30, required=True)
     last_name = fields.Char('Last Name', size=40, required=True)
@@ -77,6 +77,19 @@ class SchoolTeacher(models.Model):
     # Relació Many2one (Professors --> Nacionalitat).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
     country_id = fields.Many2one('res.country', 'Citizenship', readonly=True)
+
+    # Camps Calculats Teacher
+    # Nom del camp calculat / Nom del mètode que ho computa
+    full_name = fields.Char('Full Name', compute='_compute_full_name')
+    
+    # Mètodes Teacher
+    # La barra baixa '_' --> significa private
+    # self és equivalent al this de Java;
+    # és un conjunt de registres (RecordSet) sobre el que s'executarà el mètode.
+    def _compute_full_name(self):
+        for teacher in self:
+            teacher.full_name = teacher.last_name + ", " + teacher.first_name
+
 
 
 class SchoolThematic(models.Model):

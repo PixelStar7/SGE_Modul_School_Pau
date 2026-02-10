@@ -135,8 +135,10 @@
         <field name="model">school.teacher</field>
         <field name="arch" type="xml">
             <list string="Teachers">
-                <field name="first_name"></field>
-                <field name="last_name"></field>
+                <!-- <field name="first_name"></field>
+                <field name="last_name"></field> -->
+                <!-- Canviem pel camp calculat full_name -->
+                <field name="full_name"></field>
                 <field name="birthdate"></field>
                 <field name="tin"></field>
                 <field name="gender"></field>
