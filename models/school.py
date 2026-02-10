@@ -87,7 +87,7 @@ class SchoolThematic(models.Model):
 
     # Relació One2many (Temàtica --> Cursos).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
-    course_ids = fields.One2many('school.course', 'course_id', 'Courses', readonly=True)
+    course_ids = fields.One2many('school.course', 'manager_id', 'Courses', readonly=True)
 
     # Relació One2many (TemàticaFills --> TemàticaPare).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
