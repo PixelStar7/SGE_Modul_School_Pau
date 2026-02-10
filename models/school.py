@@ -76,7 +76,7 @@ class SchoolTeacher(models.Model):
 
     # Relació Many2one (Professors --> Nacionalitat).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
-    country_id = fields.Many2one('res.country', 'Nacionalitat', readonly=True)
+    country_id = fields.Many2one('res.country', 'Citizenship', readonly=True)
 
 
 class SchoolThematic(models.Model):
