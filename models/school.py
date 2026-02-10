@@ -12,7 +12,16 @@ class SchoolCourse(models.Model):
     active = fields.Boolean('Active', default=True) # Default és el valor per defecte
 
     # Relació Many2one: Un curs pot tenir un teacher, i un teacher pot tenir molts cursos.
-    manager_id = fields.Many2one('school.teacher', 'Manager') # No és required perquè és 0..1
+    manager_id = fields.Many2one('school.teacher', 'Manager', readonly=True) # No és required perquè és 0..1
+
+    # Relació Many2many (Cursos --> Assignatures)
+    # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps - de la nova taula / nom de la relació
+    # El nom de la taula serà el mateix que en l'altre relació a "Subject", amb les ids canviades d'ordre.
+    subject_ids = fields.Many2many('school.subject', 'school_course_subject_rel', 'course_id', 'subject_id', 'Subjects', readonly=True)
+
+    # Relació Many2one (Cursos --> Temàtica).
+    # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
+    thematic_id = fields.Many2one('school.thematic', 'Thematic', readonly=True)
 
 
 class SchoolSubject(models.Model):
@@ -23,10 +32,15 @@ class SchoolSubject(models.Model):
     hours = fields.Integer('Hours', required=True)
     active = fields.Boolean('Active', default=True)
 
-    # Relació Many2many (Professors --> Assignatures)
-    # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps / de la nova taula / nom de la relació
+    # Relació Many2many (Assignatures --> Professors)
+    # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps - de la nova taula / nom de la relació
     # El nom de la taula serà el mateix que en l'altre relació a "Teacher", amb les ids canviades d'ordre.
-    teacher_ids = fields.Many2many('school.teacher', 'school_teacher_subject_rel', 'subject_id', 'teacher_id', 'Subjects')
+    teacher_ids = fields.Many2many('school.teacher', 'school_teacher_subject_rel', 'subject_id', 'teacher_id', 'Teachers Authorized', readonly=True)
+
+    # Relació Many2many (Assignatures --> Cursos)
+    # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps - de la nova taula / nom de la relació
+    # El nom de la taula serà el mateix que en l'altre relació a "Subject", amb les ids canviades d'ordre.
+    course_ids = fields.Many2many('school.course', 'school_course_subject_rel', 'subject_id', 'course_id', 'Courses', readonly=True)
 
 
 class SchoolTeacher(models.Model):
@@ -49,12 +63,36 @@ class SchoolTeacher(models.Model):
     salary = fields.Integer('Salary')
     email = fields.Char('eMail', size=60, required=True)
     phone = fields.Char('Phone')
+    active = fields.Boolean('Active', default=True)
 
     # Relació One2many (Professor --> Cursos).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
     course_ids = fields.One2many('school.course', 'manager_id', 'Courses', readonly=True)
 
     # Relació Many2many (Professors --> Assignatures)
-    # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps / de la nova taula / nom de la relació
+    # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps - de la nova taula / nom de la relació
     # El nom de la taula serà el mateix que en l'altre relació a "Subject", amb les ids canviades d'ordre.
-    subject_ids = fields.Many2many('school.subject', 'school_teacher_subject_rel', 'teacher_id', 'subject_id', 'Subjects')
+    subject_ids = fields.Many2many('school.subject', 'school_teacher_subject_rel', 'teacher_id', 'subject_id', 'Subjects', readonly=True)
+
+    # Relació Many2one (Professors --> Nacionalitat).
+    # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
+    country_id = fields.Many2one('res.country', 'Nacionalitat', readonly=True)
+
+
+class SchoolThematic(models.Model):
+    _name = 'school.thematic'
+    _description = 'Thematic Management'
+
+    name = fields.Char('Name', size=30, required=True)
+
+    # Relació One2many (Temàtica --> Cursos).
+    # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
+    course_ids = fields.One2many('school.course', 'course_id', 'Courses', readonly=True)
+
+    # Relació One2many (TemàticaFills --> TemàticaPare).
+    # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
+    child_ids = fields.One2many('school.thematic', 'parent_id', 'Child Thematics', readonly=True)
+
+    # Relació Many2one (TemàticaPare --> TemàticaFills).
+    # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
+    parent_id = fields.Many2one('school.thematic', 'Parent Thematic', readonly=True, required=False)
