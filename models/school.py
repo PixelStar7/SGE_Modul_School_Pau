@@ -83,6 +83,9 @@ class SchoolTeacher(models.Model):
     # Camps Calculats Teacher
     # Nom del camp calculat / Nom del mètode que ho computa
     full_name = fields.Char('Full Name', compute='_compute_full_name')
+
+    # Nom del camp calculat / Nom del mètode que ho computa
+    age = fields.Integer('Age', compute='_compute_age')
     
     # Mètodes Teacher
     # La barra baixa '_' --> significa private
@@ -92,13 +95,20 @@ class SchoolTeacher(models.Model):
     @api.depends('first_name', "last_name")
     def _compute_full_name(self):
         for teacher in self:
-            teacher.full_name = teacher.last_name + ", " + teacher.first_name
+            if teacher.last_name and teacher.first_name:
+                teacher.full_name = teacher.last_name + ", " + teacher.first_name
+            else:
+                teacher.full_name = "Nou professor"
+
 
     @api.depends('birthdate')
     def _compute_age(self):
         avui = date.today()
         for teacher in self:
-            teacher.age = relativedelta(avui, teacher.birthdate).years
+            if teacher.birthdate:
+                teacher.age = relativedelta(avui, teacher.birthdate).years
+            else:
+                teacher.age = 0
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'
