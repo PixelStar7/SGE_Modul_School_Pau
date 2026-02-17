@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields
+from datetime import date
+from dateutil.relativedelta import relativedelta
 
 
 class SchoolCourse(models.Model):
@@ -86,11 +88,17 @@ class SchoolTeacher(models.Model):
     # La barra baixa '_' --> significa private
     # self és equivalent al this de Java;
     # és un conjunt de registres (RecordSet) sobre el que s'executarà el mètode.
+    # @api.depends() marca amb la modificació de quins camps recalcularà el camp calculat.
+    @api.depends('first_name', "last_name")
     def _compute_full_name(self):
         for teacher in self:
             teacher.full_name = teacher.last_name + ", " + teacher.first_name
 
-
+    @api.depends('birthdate')
+    def _compute_age(self):
+        avui = date.today()
+        for teacher in self:
+            teacher.age = relativedelta(avui, teacher.birthdate).years
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'

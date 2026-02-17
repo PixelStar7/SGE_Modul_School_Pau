@@ -63,7 +63,7 @@
     <record model="ir.actions.act_window" id="school_course_action">
         <field name="name">Courses</field>
         <field name="res_model">school.course</field>
-        <field name="view_mode">list, form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <!-- Submenu de Cursos -->
@@ -120,7 +120,7 @@
     <record model="ir.actions.act_window" id="school_subject_action">
     <field name="name">Subjects</field>
     <field name="res_model">school.subject</field>
-    <field name="view_mode">list, form</field>
+    <field name="view_mode">list,form</field>
     </record>
 
     <!-- Submenu de d'Assignatures -->
@@ -224,7 +224,7 @@
     <record model="ir.actions.act_window" id="school_teacher_action">
         <field name="name">Teachers</field>
         <field name="res_model">school.teacher</field>
-        <field name="view_mode">list, form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <!-- Submenu de Professors -->
@@ -287,7 +287,7 @@
      <record model="ir.actions.act_window" id="school_thematic_action">
         <field name="name">Thematics</field>
         <field name="res_model">school.thematic</field>
-        <field name="view_mode">list, form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <!-- Submenu de Temàtiques -->
