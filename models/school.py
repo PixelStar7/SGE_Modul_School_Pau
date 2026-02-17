@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
@@ -109,6 +110,15 @@ class SchoolTeacher(models.Model):
                 teacher.age = relativedelta(avui, teacher.birthdate).years
             else:
                 teacher.age = 0
+    
+
+    # Constraints Teacher
+    # Restriccions o checks sobre la classe Teacher
+    @api.constraints('salary')
+    def _check_salary(self):
+        for teacher in self:
+            if teacher.salary < 0:
+                raise ValidationError(_('Salary must be positive.'))
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'
