@@ -15,8 +15,8 @@
         <field name="name">school.course.list</field>
         <field name="model">school.course</field>
         <field name="arch" type="xml">
-            <!--La llista és editable per a que no hi hagi d'haver un formulari de només 2 camps-->
-            <list string="Courses" editable="top"> <!-- Top / Bottom -->
+            <!-- Si volguessim editar la llista, posariem editable="Top" o "Bottom"-->
+            <list string="Courses">
                 <field name="name"></field>
                 <!-- El camp marcat amb invisible no apareix a la vista (per a fer referències)-->
                 <field name="hours" invisible="name>'E'"></field>
@@ -33,28 +33,30 @@
         <field name="model">school.course</field>
         <field name="arch" type="xml">
             <form string="Course">
-                <group> <!--group és obligatori-->
-                    <field name="name" colspan="4"></field>
-                    <field name="thematic_id"></field>
-                    <field name="hours"></field>
-                    <field name="manager_id"></field>
+                <sheet>
+                    <group> <!--group és obligatori-->
+                        <field name="name" colspan="4"></field>
+                        <field name="thematic_id"></field>
+                        <field name="hours"></field>
+                        <field name="manager_id"></field>
 
-                    <!-- Aquests camps sempre són readonly per defecte en Odoo -->
-                    <field name="create_uid" optional="show"></field>
-                    <field name="create_date" optional="show"></field>
-                    <field name="write_uid" optional="hide"></field>
-                    <field name="write_date" optional="hide"></field>
+                        <!-- Aquests camps sempre són readonly per defecte en Odoo -->
+                        <field name="create_uid" optional="show"></field>
+                        <field name="create_date" optional="show"></field>
+                        <field name="write_uid" optional="hide"></field>
+                        <field name="write_date" optional="hide"></field>
 
-                    <!-- Es poden veure/assignar/crear assignatures -->
-                    <group string="Subjects">
-                        <field name="subject_ids" readonly="0">
-                            <list>
-                                <field name="name"></field>
-                                <field name="hours"></field>
-                            </list>
-                        </field>
+                        <!-- Es poden veure/assignar/crear assignatures -->
+                        <group string="Subjects">
+                            <field name="subject_ids" readonly="0">
+                                <list>
+                                    <field name="name"></field>
+                                    <field name="hours"></field>
+                                </list>
+                            </field>
+                        </group>
                     </group>
-                </group>
+                </sheet>
             </form>
         </field>
     </record>
