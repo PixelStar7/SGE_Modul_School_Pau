@@ -210,6 +210,7 @@ class SchoolCourseEdition(models.Model):
 
 class SchoolCourseSubject(models.Model):
     _name = 'school.course.subject'
+    _description = 'Course Subject Management'
 
     number = fields.Integer('Number', required=True)
 
