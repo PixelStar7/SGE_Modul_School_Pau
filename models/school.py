@@ -166,7 +166,7 @@ class SchoolTeacher(models.Model):
     def _check_email(self):
         for teacher in self:
             if is_valid_email(teacher.email) == False:
-                raise ValidationError(_('Email is not valid. --> ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'))
+                raise ValidationError(_('Email is not valid.'))
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'
