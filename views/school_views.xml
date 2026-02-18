@@ -37,38 +37,36 @@
                         <group>
                             <field name="name"></field>
                             <field name="thematic_id"></field>
-                            <field name="manager_id"></field>
-                        </group>
-                        <group>
                             <field name="hours"></field>
+                            <field name="manager_id"></field>
                         </group>
 
                         <group>
                             <separator string="Summary"></separator>
                             <field name="summary" nolabel="1" colspan="4" widget="html" options="{'resizable':true}" placeholder="Escriu la descripció..."></field>
                         </group>
+                    </group>
 
-                        <group>
-                            <group string="Subjects">
-                                <!-- Ara apuntem a la classe intermitja SchoolCourseSubject -->
-                                <!-- TO DO Ordenar assignatures per numero -->
-                                <field name="course_subject_ids" nolabel="1">
-                                    <list>
-                                        <field name="number"></field>
-                                        <field name="subject_id" string="Subject"></field>
-                                    </list>
-                                </field>
-                            </group>
+                    <group>
+                        <group string="Subjects">
+                            <!-- Ara apuntem a la classe intermitja SchoolCourseSubject -->
+                            <!-- TO DO Ordenar assignatures per numero -->
+                            <field name="course_subject_ids" nolabel="1">
+                                <list>
+                                    <field name="number"></field>
+                                    <field name="subject_id" string="Subject"></field>
+                                </list>
+                            </field>
+                        </group>
 
-                            <group string="Editions">
-                                <field name="edition_ids" nolabel="1">
-                                    <list>
-                                        <field name="name"></field>
-                                        <field name="date_start"></field>
-                                        <field name="date_end"></field>
-                                    </list>
-                                </field>
-                            </group>
+                        <group string="Editions">
+                            <field name="edition_ids" nolabel="1">
+                                <list>
+                                    <field name="name"></field>
+                                    <field name="date_start"></field>
+                                    <field name="date_end"></field>
+                                </list>
+                            </field>
                         </group>
                     </group>
                 </sheet>
