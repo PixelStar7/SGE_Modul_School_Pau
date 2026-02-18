@@ -14,7 +14,7 @@ class SchoolCourse(models.Model):
     name = fields.Char('Name', size=60, required=True) # Size és la mida màxima
     hours = fields.Integer('Hours', required=True) # Required vol dir obligatori
     active = fields.Boolean('Active', default=True) # Default és el valor per defecte
-    summary = fields.Char('Summary', size=255)
+    summary = fields.Html('Summary')
 
     # Relació Many2one: Un curs pot tenir un teacher, i un teacher pot tenir molts cursos.
     manager_id = fields.Many2one('school.teacher', 'Manager', required=True) # No és required perquè és 0..1 // És required des de la versió 8.0
@@ -194,11 +194,19 @@ class SchoolCourseEdition(models.Model):
 
     name = fields.Char('Name', size=60, required=True)
     date_start = fields.Date('Start Date', required=True)
-    date_end = fields.Date('End Date', required=True)
+    date_end = fields.Date('End Date') # No és obligatòria
 
     # Relació Many2one (CourseEdition --> Course).
     # Classe apuntada / nom de la relació
     course_id = fields.Many2one('school.course', 'Course', ondelete='cascade') # Si s'elimina un curs, s'eliminaràn les edicions del mateix
+
+    # Constrains CourseEdition
+    @api.constrains('date_end')
+    def _check_date_end(self):
+        for courseEdition in self:
+            if courseEdition.date_end != False:
+                if courseEdition.date_end < courseEdition.date_start:
+                    raise ValidationError(_('End date must be newer or equal than start date.'))
 
 class SchoolCourseSubject(models.Model):
     _name = 'school.course.subject'

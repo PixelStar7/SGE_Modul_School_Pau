@@ -33,44 +33,42 @@
         <field name="arch" type="xml">
             <form string="Course">
                 <sheet>
-                    <group col="4"> <!--group és obligatori-->
-                        <group colspan="4" col="2">
+                    <group> <!-- Tota la pantalla -->
+                        <group>
                             <field name="name"></field>
-                        </group>
-                        <group colspan="2" col="2">
                             <field name="thematic_id"></field>
                             <field name="manager_id"></field>
                         </group>
-                        <group colspan="2" col="2">
+                        <group>
                             <field name="hours"></field>
                         </group>
 
-                        <group colspan="2" col="2">
-                            <separator string="Dades Creació"></separator>
-                            <field string="Usuari" name="create_uid"></field>
-                            <field string="Moment Temporal" name="create_date"></field>
-                        </group>
-                        <group colspan="2" col="2">
-                            <separator string="Darrera Modificació"></separator>
-                            <field string="Usuari" name="write_uid"></field>
-                            <field string="Moment Temporal" name="write_date"></field>
+                        <group>
+                            <separator string="Summary"></separator>
+                            <field name="summary" nolabel="1" colspan="4" widget="html" options="{'resizable':true}" placeholder="Escriu la descripció..."></field>
                         </group>
 
-                        <group string="Subjects" colspan="2" col="2">
-                            <!-- Ara apuntem a la classe intermitja SchoolCourseSubject -->
-                             <!-- TO DO Ordenar assignatures per numero -->
-                            <field name="course_subject_ids" nolabel="1" readonly="0">
-                                <list>
-                                    <field name="number"></field>
-                                    <field name="subject_id"></field>
-                                </list>
-                                <form>
-                                    <group>
+                        <group>
+                            <group string="Subjects">
+                                <!-- Ara apuntem a la classe intermitja SchoolCourseSubject -->
+                                <!-- TO DO Ordenar assignatures per numero -->
+                                <field name="course_subject_ids" nolabel="1">
+                                    <list>
                                         <field name="number"></field>
-                                        <field name="subject_id"></field>
-                                    </group>
-                                </form>
-                            </field>
+                                        <field name="subject_id" string="Subject"></field>
+                                    </list>
+                                </field>
+                            </group>
+
+                            <group string="Editions">
+                                <field name="edition_ids" nolabel="1">
+                                    <list>
+                                        <field name="name"></field>
+                                        <field name="date_start"></field>
+                                        <field name="date_end"></field>
+                                    </list>
+                                </field>
+                            </group>
                         </group>
                     </group>
                 </sheet>
@@ -130,7 +128,7 @@
                             <field name="course_subject_ids" nolabel="1" colspan="2">
                                 <list>
                                     <field name="number"></field>
-                                    <field name="course_id"></field>
+                                    <field name="course_id" string="Course"></field>
                                 </list>
                             </field>
                         </group>
