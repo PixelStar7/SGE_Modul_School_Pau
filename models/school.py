@@ -14,18 +14,36 @@ class SchoolCourse(models.Model):
     name = fields.Char('Name', size=60, required=True) # Size és la mida màxima
     hours = fields.Integer('Hours', required=True) # Required vol dir obligatori
     active = fields.Boolean('Active', default=True) # Default és el valor per defecte
+    summary = fields.Char('Summary', size=255)
 
     # Relació Many2one: Un curs pot tenir un teacher, i un teacher pot tenir molts cursos.
-    manager_id = fields.Many2one('school.teacher', 'Manager') # No és required perquè és 0..1
+    manager_id = fields.Many2one('school.teacher', 'Manager', required=True) # No és required perquè és 0..1 // És required des de la versió 8.0
 
+                                    # Relació ja no existent
     # Relació Many2many (Cursos --> Assignatures)
     # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps - de la nova taula / nom de la relació
     # El nom de la taula serà el mateix que en l'altre relació a "Subject", amb les ids canviades d'ordre.
-    subject_ids = fields.Many2many('school.subject', 'school_course_subject_rel', 'course_id', 'subject_id', 'Subjects', readonly=True)
+    # subject_ids = fields.Many2many('school.subject', 'school_course_subject_rel', 'course_id', 'subject_id', 'Subjects', readonly=True)
 
     # Relació Many2one (Cursos --> Temàtica).
-    # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
+    # Classe apuntada / nom de la relació
     thematic_id = fields.Many2one('school.thematic', 'Thematic', required=True)
+
+    # Relació One2many (Course --> CourseSubject).
+    # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
+    course_subject_ids = fields.One2many('school.course.subject', 'course_id', 'CourseSubject', readonly=True)
+
+    # Relació One2many (Course --> CourseEdition).
+    # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
+    edition_ids = fields.One2many('school.course.edition', 'course_id', 'CourseEdition', readonly=True)
+
+    # Constraints Course
+    @api.constrains('hours')
+    def _check_hours(self):
+        for course in self:
+            if (course.hours < 0):
+                raise ValidationError(_('Course hours must be positive.'))
+
 
 
 class SchoolSubject(models.Model):
@@ -41,10 +59,22 @@ class SchoolSubject(models.Model):
     # El nom de la taula serà el mateix que en l'altre relació a "Teacher", amb les ids canviades d'ordre.
     teacher_ids = fields.Many2many('school.teacher', 'school_teacher_subject_rel', 'subject_id', 'teacher_id', 'Teachers Authorized', readonly=True)
 
+                                    # Relació ja no existent
     # Relació Many2many (Assignatures --> Cursos)
     # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps - de la nova taula / nom de la relació
     # El nom de la taula serà el mateix que en l'altre relació a "Subject", amb les ids canviades d'ordre.
-    course_ids = fields.Many2many('school.course', 'school_course_subject_rel', 'subject_id', 'course_id', 'Courses', readonly=True)
+    # course_ids = fields.Many2many('school.course', 'school_course_subject_rel', 'subject_id', 'course_id', 'Courses', readonly=True)
+
+    # Relació One2many (Subject --> CourseSubject).
+    # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
+    course_subject_ids = fields.One2many('school.course.subject', 'subject_id', 'CourseSubject', readonly=True)
+
+    # Constraints Subject
+    @api.constrains('hours')
+    def _check_hours(self):
+        for subject in self:
+            if (subject.hours < 0):
+                raise ValidationError(_('Subject hours must be positive.'))
 
 
 class SchoolTeacher(models.Model):
@@ -69,6 +99,7 @@ class SchoolTeacher(models.Model):
     email = fields.Char('eMail', size=60, required=True)
     phone = fields.Char('Phone')
     active = fields.Boolean('Active?', default=True)
+    photo = fields.Image('Photo')
 
     # Relació One2many (Professor --> Cursos).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
@@ -122,12 +153,26 @@ class SchoolTeacher(models.Model):
         for teacher in self:
             if teacher.salary < 0:
                 raise ValidationError(_('Salary must be positive.'))
+            
+    @api.constrains('phone')
+    def _check_phone(self):
+        for teacher in self:
+            if teacher.phone != False:
+                for car in teacher.phone:
+                    if car < '0' or car > '9':
+                        raise ValidationError(_('Phone number must only have numbers.'))
+
+    @api.constrains('email')
+    def _check_email(self):
+        for teacher in self:
+            if is_valid_email(teacher.email) == False:
+                raise ValidationError(_('Email is not valid. --> ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'))
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'
     _description = 'Thematic Management'
 
-    name = fields.Char('Name', size=30, required=True)
+    name = fields.Char('Name', size=60, required=True)
 
     # Relació One2many (Temàtica --> Cursos).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
@@ -140,3 +185,39 @@ class SchoolThematic(models.Model):
     # Relació Many2one (TemàticaPare --> TemàticaFills).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
     parent_id = fields.Many2one('school.thematic', 'Parent Thematic')
+
+
+# ===== Classes N a M =====
+class SchoolCourseEdition(models.Model):
+    _name = 'school.course.edition'
+    _description = 'Course Edition Management'
+
+    name = fields.Char('Name', size=60, required=True)
+    date_start = fields.Date('Start Date', required=True)
+    date_end = fields.Date('End Date', required=True)
+
+    # Relació Many2one (CourseEdition --> Course).
+    # Classe apuntada / nom de la relació
+    course_id = fields.Many2one('school.course', 'Course', ondelete='cascade') # Si s'elimina un curs, s'eliminaràn les edicions del mateix
+
+class SchoolCourseSubject(models.Model):
+    _name = 'school.course.subject'
+
+    number = fields.Integer('Number', required=True)
+
+    # Relació Many2one (CourseSubject --> Course).
+    # Classe apuntada / nom de la relació
+    course_id = fields.Many2one('school.course', 'Course', ondelete='cascade') # Si s'elimina un curs, s'eliminaràn les assignatures del mateix
+
+    # Relació Many2one (CourseSubject --> Subject).
+    # Classe apuntada / nom de la relació
+    subject_id = fields.Many2one('school.subject', 'Subject')
+
+    # Constrains CourseSubject
+    @api.constrains('number')
+    def _check_number(self):
+        for courseSubject in self:
+            if courseSubject.number < 0:
+                raise ValidationError(_('Number must be positive.'))
+    
+    # TO DO Un curs no pot tenir dues assignatures amb el mateix number o repetides.

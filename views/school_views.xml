@@ -57,15 +57,17 @@
                         </group>
 
                         <group string="Subjects" colspan="2" col="2">
-                            <field name="subject_ids" nolabel="1" readonly="0">
+                            <!-- Ara apuntem a la classe intermitja SchoolCourseSubject -->
+                             <!-- TO DO Ordenar assignatures per numero -->
+                            <field name="course_subject_ids" nolabel="1" readonly="0">
                                 <list>
-                                    <field name="name"></field>
-                                    <field name="hours"></field>
+                                    <field name="number"></field>
+                                    <field name="subject_id"></field>
                                 </list>
                                 <form>
                                     <group>
-                                        <field name="name"></field>
-                                        <field name="hours"></field>
+                                        <field name="number"></field>
+                                        <field name="subject_id"></field>
                                     </group>
                                 </form>
                             </field>
@@ -124,11 +126,11 @@
 
                         <!-- Es poden veure els cursos, pero no permetem assignar/crear/eliminar-los -->
                         <group string="Courses" colspan="2" col="2">
-                            <field name="course_ids" nolabel="1" colspan="2">
+                            <!-- Ara apuntem a la classe intermitja SchoolCourseSubject -->
+                            <field name="course_subject_ids" nolabel="1" colspan="2">
                                 <list>
-                                    <field name="name"></field>
-                                    <field name="hours"></field>
-                                    <field name="manager_id"></field>
+                                    <field name="number"></field>
+                                    <field name="course_id"></field>
                                 </list>
                             </field>
                         </group>
