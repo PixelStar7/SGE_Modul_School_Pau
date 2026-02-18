@@ -5,6 +5,7 @@ from odoo.exceptions import ValidationError
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
+from utils import is_valid_email
 
 class SchoolCourse(models.Model):
     _name = 'school.course' # Nom de la taula que crearà Odoo 
@@ -15,7 +16,7 @@ class SchoolCourse(models.Model):
     active = fields.Boolean('Active', default=True) # Default és el valor per defecte
 
     # Relació Many2one: Un curs pot tenir un teacher, i un teacher pot tenir molts cursos.
-    manager_id = fields.Many2one('school.teacher', 'Manager', readonly=True) # No és required perquè és 0..1
+    manager_id = fields.Many2one('school.teacher', 'Manager') # No és required perquè és 0..1
 
     # Relació Many2many (Cursos --> Assignatures)
     # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps - de la nova taula / nom de la relació
@@ -51,7 +52,8 @@ class SchoolTeacher(models.Model):
     _description = 'Teacher Management'
     # Com no hi ha camp "name", haurem d'usar '_rec_name':
     # I si volem tenir el nom complet (first + last name), hem de programar _compute_display_name
-    _rec_name = 'full_name'
+    # _rec_name = 'full_name'
+    # Si, en canvi, volem posar el display_name, treiem el rec_name...
 
     first_name = fields.Char('First Name', size=30, required=True)
     last_name = fields.Char('Last Name', size=40, required=True)
@@ -66,7 +68,7 @@ class SchoolTeacher(models.Model):
     salary = fields.Integer('Salary')
     email = fields.Char('eMail', size=60, required=True)
     phone = fields.Char('Phone')
-    active = fields.Boolean('Active', default=True)
+    active = fields.Boolean('Active?', default=True)
 
     # Relació One2many (Professor --> Cursos).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
@@ -75,15 +77,16 @@ class SchoolTeacher(models.Model):
     # Relació Many2many (Professors --> Assignatures)
     # Nom de la taula que relacionarà / nom de la taula a crear / nom dels camps - de la nova taula / nom de la relació
     # El nom de la taula serà el mateix que en l'altre relació a "Subject", amb les ids canviades d'ordre.
-    subject_ids = fields.Many2many('school.subject', 'school_teacher_subject_rel', 'teacher_id', 'subject_id', 'Subjects', readonly=True)
+    subject_ids = fields.Many2many('school.subject', 'school_teacher_subject_rel', 'teacher_id', 'subject_id', 'Subjects authorized', readonly=True)
 
     # Relació Many2one (Professors --> Nacionalitat).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
-    country_id = fields.Many2one('res.country', 'Citizenship', readonly=True)
+    country_id = fields.Many2one('res.country', 'Citizenship', required=True)
 
     # Camps Calculats Teacher
     # Nom del camp calculat / Nom del mètode que ho computa
-    full_name = fields.Char('Full Name', compute='_compute_full_name')
+    # full_name = fields.Char('Full Name', compute='_compute_full_name')
+    # Tret el camp calculat per que usem el display_name
 
     # Nom del camp calculat / Nom del mètode que ho computa
     age = fields.Integer('Age', compute='_compute_age')
@@ -93,13 +96,14 @@ class SchoolTeacher(models.Model):
     # self és equivalent al this de Java;
     # és un conjunt de registres (RecordSet) sobre el que s'executarà el mètode.
     # @api.depends() marca amb la modificació de quins camps recalcularà el camp calculat.
-    @api.depends('first_name', "last_name")
-    def _compute_full_name(self):
+    @api.depends('first_name', 'last_name')
+    def _compute_display_name(self):
         for teacher in self:
-            if teacher.last_name and teacher.first_name:
-                teacher.full_name = teacher.last_name + ", " + teacher.first_name
+            if teacher.last_name != False and teacher.first_name != False:
+                # display_name és un camp d'Odoo directament
+                teacher.display_name = teacher.last_name + ", " + teacher.first_name
             else:
-                teacher.full_name = "Nou professor"
+                teacher.display_name = "Nou professor"
 
 
     @api.depends('birthdate')
@@ -110,7 +114,6 @@ class SchoolTeacher(models.Model):
                 teacher.age = relativedelta(avui, teacher.birthdate).years
             else:
                 teacher.age = 0
-    
 
     # Constrains Teacher
     # Restriccions o checks sobre la classe Teacher
@@ -136,4 +139,4 @@ class SchoolThematic(models.Model):
 
     # Relació Many2one (TemàticaPare --> TemàticaFills).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
-    parent_id = fields.Many2one('school.thematic', 'Parent Thematic', readonly=True, required=False)
+    parent_id = fields.Many2one('school.thematic', 'Parent Thematic')

@@ -171,8 +171,8 @@
             <list string="Teachers">
                 <!-- <field name="first_name"></field>
                 <field name="last_name"></field> -->
-                <!-- Canviem pel camp calculat full_name -->
-                <field name="full_name"></field>
+                <!-- Canviem pel camp calculat display_name -->
+                <field name="display_name" string="Full Name"></field>
                 <field name="birthdate"></field>
                 <field name="tin"></field>
                 <field name="gender"></field>
