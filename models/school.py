@@ -99,7 +99,7 @@ class SchoolTeacher(models.Model):
     email = fields.Char('eMail', size=60, required=True)
     phone = fields.Char('Phone')
     active = fields.Boolean('Active?', default=True)
-    photo = fields.Image('Photo')
+    photo = fields.Binary('Photo')
 
     # Relació One2many (Professor --> Cursos).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació

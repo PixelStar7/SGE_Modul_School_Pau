@@ -209,6 +209,11 @@
                             <field name="salary" placeholder="???"></field>
                         </group>
 
+                        <group>
+                            <!-- Per posar una imatge, fem fields.Binary i posem el widget="image" -->
+                            <fields name="photo" widget="image"></fields>
+                        </group>
+
                         <!-- Posem el Notebook per a crear una llista de pestanyes -->
                         <notebook>
                             <!-- Nom de la pàgina / nom que sortirà a la pestanya-->
@@ -217,10 +222,10 @@
                                     <group> <!-- Aquest grup ocupa 2 columnes de les 4 => Mitja pantalla -->
                                         <!-- El nolabel="1" serveix per treure l'etiqueta del camp (course_ids) -->
                                         <!-- El widget="many2many" serveix per a que no es borri del tot el curs, només el treiem del professor -->
-                                        <field name="course_ids" nolabel="1" readonly="0" widget="many2many"> <!-- Fem que no sigui readonly NOMÉS en aquest formulari -->
+                                        <field name="course_ids" nolabel="1" readonly="0" widget="many2many" context="{'default_manager_id':id}"> <!-- Fem que no sigui readonly NOMÉS en aquest formulari -->
                                             <!-- Per veure NOMÉS els camps que volguem i en l'ordre que volguem, -->
                                             <!-- fem una list i posem els camps a plaer. -->
-                                            <list create="0">
+                                            <list>
                                                 <field name="name"></field>
                                                 <field name="hours"></field>
                                             </list>
