@@ -190,6 +190,10 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
+
+                    <!-- Per posar una imatge, fem fields.Binary i posem el widget="image" -->
+                    <field name="photo" widget="image" class="oe_avatar"></field>
+
                     <group> <!-- col = "4" -->
                         <group string="Personal data" col="8">
                             <!-- Si no posem colspan="8", només agafaria "2", valor per defecte -->
@@ -207,11 +211,6 @@
                             <field name="country_id" placeholder="???"></field>
                             <field name="tin" placeholder="???" required="True"></field>
                             <field name="salary" placeholder="???"></field>
-                        </group>
-
-                        <group>
-                            <!-- Per posar una imatge, fem fields.Binary i posem el widget="image" -->
-                            <fields name="photo" widget="image"></fields>
                         </group>
 
                         <!-- Posem el Notebook per a crear una llista de pestanyes -->
