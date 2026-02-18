@@ -5,7 +5,7 @@ from odoo.exceptions import ValidationError
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
-from utils import is_valid_email
+from ..utils import is_valid_email
 
 class SchoolCourse(models.Model):
     _name = 'school.course' # Nom de la taula que crearà Odoo 
