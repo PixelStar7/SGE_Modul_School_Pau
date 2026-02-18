@@ -112,9 +112,9 @@ class SchoolTeacher(models.Model):
                 teacher.age = 0
     
 
-    # Constraints Teacher
+    # Constrains Teacher
     # Restriccions o checks sobre la classe Teacher
-    @api.constraints('salary')
+    @api.constrains('salary')
     def _check_salary(self):
         for teacher in self:
             if teacher.salary < 0:
