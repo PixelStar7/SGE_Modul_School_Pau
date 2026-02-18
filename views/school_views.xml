@@ -34,25 +34,41 @@
         <field name="arch" type="xml">
             <form string="Course">
                 <sheet>
-                    <group> <!--group és obligatori-->
-                        <field name="name" colspan="4"></field>
-                        <field name="thematic_id"></field>
-                        <field name="hours"></field>
-                        <field name="manager_id"></field>
+                    <group col="4"> <!--group és obligatori-->
+                        <group colspan="4" col="2">
+                            <field name="name"></field>
+                        </group>
+                        <group colspan="2" col="2">
+                            <field name="thematic_id"></field>
+                            <field name="manager_id"></field>
+                        </group>
+                        <group colspan="2" col="2">
+                            <field name="hours"></field>
+                        </group>
 
-                        <!-- Aquests camps sempre són readonly per defecte en Odoo -->
-                        <field name="create_uid" optional="show"></field>
-                        <field name="create_date" optional="show"></field>
-                        <field name="write_uid" optional="hide"></field>
-                        <field name="write_date" optional="hide"></field>
+                        <group colspan="2" col="2">
+                            <separator string="Dades Creació"></separator>
+                            <field string="Usuari" name="create_uid"></field>
+                            <field string="Moment Temporal" name="create_date"></field>
+                        </group>
+                        <group colspan="2" col="2">
+                            <separator string="Darrera Modificació"></separator>
+                            <field string="Usuari" name="write_uid"></field>
+                            <field string="Moment Temporal" name="write_date"></field>
+                        </group>
 
-                        <!-- Es poden veure/assignar/crear assignatures -->
-                        <group string="Subjects">
-                            <field name="subject_ids" readonly="0">
+                        <group string="Subjects" colspan="2" col="2">
+                            <field name="subject_ids" nolabel="1" readonly="0">
                                 <list>
                                     <field name="name"></field>
                                     <field name="hours"></field>
                                 </list>
+                                <form>
+                                    <group>
+                                        <field name="name"></field>
+                                        <field name="hours"></field>
+                                    </group>
+                                </form>
                             </field>
                         </group>
                     </group>
