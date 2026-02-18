@@ -25,7 +25,7 @@ class SchoolCourse(models.Model):
 
     # Relació Many2one (Cursos --> Temàtica).
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
-    thematic_id = fields.Many2one('school.thematic', 'Thematic', readonly=True)
+    thematic_id = fields.Many2one('school.thematic', 'Thematic', required=True)
 
 
 class SchoolSubject(models.Model):
