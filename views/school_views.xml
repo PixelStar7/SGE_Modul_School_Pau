@@ -122,11 +122,28 @@
                         <group>
                             <field name="hours" placeholder="???"></field>
                         </group>
-                        <group>
-                            <!-- Es poden veure els cursos, pero no permetem assignar/crear/eliminar-los -->
-                            <field name="course_ids"></field>
-                            <!-- Es poden veure els professors, pero no permetem assignar/crear/eliminar-los -->
-                            <field name="teacher_ids"></field>
+
+                        <!-- Es poden veure els cursos, pero no permetem assignar/crear/eliminar-los -->
+                        <group string="Courses" colspan="2" col="2">
+                            <field name="course_ids" nolabel="1" colspan="2">
+                                <list>
+                                    <field name="name"></field>
+                                    <field name="hours"></field>
+                                    <field name="manager_id"></field>
+                                </list>
+                            </field>
+                        </group>
+
+                        <!-- Es poden veure els professors, pero no permetem assignar/crear/eliminar-los -->
+                        <group string="Teachers" colspan="2" col="2">
+                            <field name="teacher_ids" nolabel="1" colspan="2">
+                                <list>
+                                    <field name="first_name"></field>
+                                    <field name="last_name"></field>
+                                    <field name="phone"></field>
+                                    <field name="email" widget="email"></field>
+                                </list>
+                            </field>
                         </group>
                     </group>
                 </sheet>
