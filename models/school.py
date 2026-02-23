@@ -41,7 +41,7 @@ class SchoolCourse(models.Model):
     @api.constrains('hours')
     def _check_hours(self):
         for course in self:
-            if (course.hours < 0):
+            if (course.hours <= 0):
                 raise ValidationError(_('Course hours must be positive.'))
 
 
@@ -73,7 +73,7 @@ class SchoolSubject(models.Model):
     @api.constrains('hours')
     def _check_hours(self):
         for subject in self:
-            if (subject.hours < 0):
+            if (subject.hours <= 0):
                 raise ValidationError(_('Subject hours must be positive.'))
 
 
@@ -187,6 +187,13 @@ class SchoolThematic(models.Model):
     parent_id = fields.Many2one('school.thematic', 'Parent Thematic')
 
 
+    # Constrains Thematic
+    @api.constrains('parent_id')
+    def _check_parent_id(self):
+        if not self._check_recursion():
+            raise ValidationError(_('Error! You cannot create recursive thematics.'))
+
+
 # ===== Classes N a M =====
 class SchoolCourseEdition(models.Model):
     _name = 'school.course.edition'
@@ -216,17 +223,17 @@ class SchoolCourseSubject(models.Model):
 
     # Relació Many2one (CourseSubject --> Course).
     # Classe apuntada / nom de la relació
-    course_id = fields.Many2one('school.course', 'Course', ondelete='cascade') # Si s'elimina un curs, s'eliminaràn les assignatures del mateix
+    course_id = fields.Many2one('school.course', 'Course', ondelete='cascade', required=True) # Si s'elimina un curs, s'eliminaràn les assignatures del mateix
 
     # Relació Many2one (CourseSubject --> Subject).
     # Classe apuntada / nom de la relació
-    subject_id = fields.Many2one('school.subject', 'Subject')
+    subject_id = fields.Many2one('school.subject', 'Subject', required=True, ondelete='restrict') # No es pot esborrar una assignatura si ja està assignada a un curs
 
     # Constrains CourseSubject
     @api.constrains('number')
     def _check_number(self):
         for courseSubject in self:
-            if courseSubject.number < 0:
+            if courseSubject.number <= 0:
                 raise ValidationError(_('Number must be positive.'))
     
     # TO DO Un curs no pot tenir dues assignatures amb el mateix number o repetides.

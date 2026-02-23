@@ -66,6 +66,19 @@
                                     <field name="date_start"></field>
                                     <field name="date_end"></field>
                                 </list>
+                                <form>
+                                    <group>
+                                        <group colspan="2">
+                                            <field name="name"></field>
+                                        </group>
+                                        <group>
+                                            <field name="date_start"></field>
+                                        </group>
+                                        <group>
+                                            <field name="date_end"></field>
+                                        </group>
+                                    </group>
+                                </form>
                             </field>
                         </group>
                     </group>
