@@ -44,6 +44,10 @@ class SchoolCourse(models.Model):
             if (course.hours <= 0):
                 raise ValidationError(_('Course hours must be positive.'))
 
+    @api.onchange('name')
+    def _onchange_name(self):
+        if self.name != False:
+            self.name = self.name.capitalize()
 
 
 class SchoolSubject(models.Model):
@@ -75,6 +79,11 @@ class SchoolSubject(models.Model):
         for subject in self:
             if (subject.hours <= 0):
                 raise ValidationError(_('Subject hours must be positive.'))
+
+    @api.onchange('name')
+    def _onchange_name(self):
+        if self.name != False:
+            self.name = self.name.capitalize()
 
 
 class SchoolTeacher(models.Model):
@@ -167,6 +176,11 @@ class SchoolTeacher(models.Model):
         for teacher in self:
             if is_valid_email(teacher.email) == False:
                 raise ValidationError(_('Email is not valid.'))
+            
+    @api.onchange("tin")
+    def _onchange_tin(self):
+        if self.tin != False:
+            self.tin = self.tin.upper()
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'
@@ -193,6 +207,11 @@ class SchoolThematic(models.Model):
         if not self._check_recursion():
             raise ValidationError(_('Error! You cannot create recursive thematics.'))
 
+    @api.onchange('name')
+    def _onchange_name(self):
+        if self.name != False:
+            self.name = self.name.capitalize()
+
 
 # ===== Classes N a M =====
 class SchoolCourseEdition(models.Model):
@@ -208,16 +227,26 @@ class SchoolCourseEdition(models.Model):
     course_id = fields.Many2one('school.course', 'Course', ondelete='cascade') # Si s'elimina un curs, s'eliminaràn les edicions del mateix
 
     # Constrains CourseEdition
-    @api.constrains('date_end')
-    def _check_date_end(self):
+    @api.constrains('date_start', 'date_end')
+    def _check_dates(self):
         for courseEdition in self:
             if courseEdition.date_end != False:
                 if courseEdition.date_end < courseEdition.date_start:
                     raise ValidationError(_('End date must be newer or equal than start date.'))
 
+    @api.onchange('name')
+    def _onchange_name(self):
+        if self.name != False:
+            self.name = self.name.title()
+
+
 class SchoolCourseSubject(models.Model):
     _name = 'school.course.subject'
     _description = 'Course Subject Management'
+    _order = 'number'
+    _sql_constraints = [
+        ('course_subject_unique', 'unique(course_id, subject_id)', _('The subject in a course must be unique!'))
+    ]
 
     number = fields.Integer('Number', required=True)
 
@@ -235,5 +264,3 @@ class SchoolCourseSubject(models.Model):
         for courseSubject in self:
             if courseSubject.number <= 0:
                 raise ValidationError(_('Number must be positive.'))
-    
-    # TO DO Un curs no pot tenir dues assignatures amb el mateix number o repetides.
