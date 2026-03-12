@@ -10,6 +10,7 @@ from ..utils import is_valid_email
 class SchoolCourse(models.Model):
     _name = 'school.course' # Nom de la taula que crearà Odoo 
     _description = 'Course Management' # Nom més llegible de la taula
+    _order = 'name'
 
     name = fields.Char('Name', size=60, required=True) # Size és la mida màxima
     hours = fields.Integer('Hours', required=True) # Required vol dir obligatori
@@ -17,7 +18,17 @@ class SchoolCourse(models.Model):
     summary = fields.Html('Summary')
 
     # Relació Many2one: Un curs pot tenir un teacher, i un teacher pot tenir molts cursos.
-    manager_id = fields.Many2one('school.teacher', 'Manager', required=True) # No és required perquè és 0..1 // És required des de la versió 8.0
+    # No és required perquè és 0..1 // És required des de la versió 8.0
+    manager_id = fields.Many2one('school.teacher', 'Manager', required=True,
+                                  domain=['&', 
+                                          ('country_id.code', '=', 'ES'),
+                                          '|',
+                                          ('active', '=', True),
+                                          ('active', '=', False)])
+
+    # Condicions domain (camp, operacio, valor)
+    # Si no posem operador, es queda sempre '&'
+
 
                                     # Relació ja no existent
     # Relació Many2many (Cursos --> Assignatures)

@@ -38,7 +38,13 @@
                             <field name="name"></field>
                             <field name="thematic_id"></field>
                             <field name="hours"></field>
-                            <field name="manager_id"></field>
+                            <!-- Hem d'escapar el & amb '&amp;' -->
+                            <field name="manager_id"
+                                   domain="['&amp;', 
+                                          ('country_id.code', '=', 'ES'),
+                                          '|',
+                                          ('active', '=', True),
+                                          ('active', '=', False)]"></field>
                         </group>
 
                         <group>
@@ -179,7 +185,8 @@
         <field name="name">school.teacher.list</field>
         <field name="model">school.teacher</field>
         <field name="arch" type="xml">
-            <list string="Teachers">
+            <!-- El decoration serveix per pintar el registre segons una condició -->
+            <list string="Teachers" decoration-danger="active==False" decoration-success="active==True">
                 <!-- <field name="first_name"></field>
                 <field name="last_name"></field> -->
                 <!-- Canviem pel camp calculat display_name -->
@@ -192,6 +199,8 @@
                 <field name="phone"></field>
                 <!-- Amb el One2Many, podem veure els cursos de cada Professor afegint el field -->
                 <field name="course_ids" optional="hide"></field> <!-- Camp que podem veure anant als 3 punts de la dreta -->
+                <!-- Hem de posar el camp active perque l'estem usant en el decoration -->
+                <field name="active" column_invisible="1"></field>
             </list>
         </field>
     </record>
@@ -278,6 +287,8 @@
         <field name="name">Teachers</field>
         <field name="res_model">school.teacher</field>
         <field name="view_mode">list,form</field>
+        <!-- Desactivem el camp active per a que surtin tots els professors, encara que estiguin arxivats o desactivats -->
+        <field name="context">{'active_test': False}</field>
     </record>
 
     <!-- Submenu de Professors -->
