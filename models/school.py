@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _
+from odoo import models, fields, api, _, tools
 from odoo.exceptions import ValidationError
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -29,6 +29,10 @@ class SchoolCourse(models.Model):
     # Condicions domain (camp, operacio, valor)
     # Si no posem operador, es queda sempre '&'
 
+    # Camps related, per aconseguir informació d'una relació
+    manager_phone = fields.Char('Phone', related = 'manager_id.phone')
+    manager_email = fields.Char('eMail', related = 'manager_id.email')
+    manager_citizenship = fields.Many2one('res.country', 'Citizenship', related="manager_id.country_id")
 
                                     # Relació ja no existent
     # Relació Many2many (Cursos --> Assignatures)
@@ -58,12 +62,15 @@ class SchoolCourse(models.Model):
     @api.onchange('name')
     def _onchange_name(self):
         if self.name != False:
+            # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
+            # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False"))
             self.name = self.name.capitalize()
 
 
 class SchoolSubject(models.Model):
     _name = 'school.subject'
     _description = 'Subject Management'
+    _order = 'name'
 
     name = fields.Char('Name', size=60, required=True, translate=True) # S'ha de poder traduïr
     hours = fields.Integer('Hours', required=True)
@@ -94,16 +101,26 @@ class SchoolSubject(models.Model):
     @api.onchange('name')
     def _onchange_name(self):
         if self.name != False:
+            # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
+            # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False")
             self.name = self.name.capitalize()
 
 
 class SchoolTeacher(models.Model):
     _name = 'school.teacher'
     _description = 'Teacher Management'
+    _order = 'last_name,first_name'
     # Com no hi ha camp "name", haurem d'usar '_rec_name':
     # I si volem tenir el nom complet (first + last name), hem de programar _compute_display_name
     # _rec_name = 'full_name'
     # Si, en canvi, volem posar el display_name, treiem el rec_name...
+
+    _sql_constraints=[
+        ('ck_salari', 'check(salary >= 0)', 'Salary must be positive (controlled by DB)' '')
+    ]
+    # No és habitual incorporar una check a la BD. S'utilitzen les @api.constraints
+    # on Odoo controla la restricció abans d'enviar la instrucció insert/update a la BD
+    # Aixo només és un exemple acadèmic
 
     first_name = fields.Char('First Name', size=30, required=True)
     last_name = fields.Char('Last Name', size=40, required=True)
@@ -168,11 +185,13 @@ class SchoolTeacher(models.Model):
 
     # Constrains Teacher
     # Restriccions o checks sobre la classe Teacher
-    @api.constrains('salary')
-    def _check_salary(self):
-        for teacher in self:
-            if teacher.salary < 0:
-                raise ValidationError(_('Salary must be positive.'))
+    # @api.constrains('salary')
+    # def _check_salary(self):
+    #     for teacher in self:
+    #         if teacher.salary < 0:
+    #             raise ValidationError(_('Salary must be positive.'))
+    # Està comentada per què està introduïda a sql_constrints i així es pot comprovar
+    # l'actuació quan s'infringeix la restricció
             
     @api.constrains('phone')
     def _check_phone(self):
@@ -191,11 +210,19 @@ class SchoolTeacher(models.Model):
     @api.onchange("tin")
     def _onchange_tin(self):
         if self.tin != False:
+            # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
+            # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False")
             self.tin = self.tin.upper()
+    
+    def _auto_init(self):
+        res = super(SchoolTeacher, self)._auto_init()
+        tools.create_unique_index(self._cr, 'school_teacher_unique_tin', self.table, [('lower(tin)')])
+        return res
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'
     _description = 'Thematic Management'
+    _order = 'name'
 
     name = fields.Char('Name', size=60, required=True)
 
@@ -221,6 +248,8 @@ class SchoolThematic(models.Model):
     @api.onchange('name')
     def _onchange_name(self):
         if self.name != False:
+            # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
+            # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False")
             self.name = self.name.capitalize()
 
 
@@ -228,6 +257,7 @@ class SchoolThematic(models.Model):
 class SchoolCourseEdition(models.Model):
     _name = 'school.course.edition'
     _description = 'Course Edition Management'
+    _order = 'name'
 
     name = fields.Char('Name', size=60, required=True)
     date_start = fields.Date('Start Date', required=True)
@@ -248,6 +278,8 @@ class SchoolCourseEdition(models.Model):
     @api.onchange('name')
     def _onchange_name(self):
         if self.name != False:
+            # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
+            # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False")
             self.name = self.name.title()
 
 

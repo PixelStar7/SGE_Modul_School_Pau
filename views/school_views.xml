@@ -33,60 +33,64 @@
         <field name="arch" type="xml">
             <form string="Course">
                 <sheet>
-                    <group> <!-- Tota la pantalla -->
-                        <group>
-                            <field name="name"></field>
-                            <field name="thematic_id"></field>
-                            <field name="hours"></field>
-                            <!-- Hem d'escapar el & amb '&amp;' -->
-                            <field name="manager_id"
-                                   domain="['&amp;', 
-                                          ('country_id.code', '=', 'ES'),
-                                          '|',
-                                          ('active', '=', True),
-                                          ('active', '=', False)]"></field>
+                    <group col="4">
+                        
+                        <group colspan="2">
+                            <group colspan="2">
+                                <field name="name"/>
+                                <field name="thematic_id"/>
+                                <field name="hours"/>
+                            </group>
+                            <group colspan="2" col="4" string="MANAGER">
+                                <group colspan="1">
+                                    </group>
+                                <group colspan="3">
+                                    <field name="manager_id" string="Teacher"
+                                           domain="[('country_id.code','=','ES'),'|',('active','=',True),('active','=',False)]"/>
+                                    <field name="manager_phone"/>
+                                    <field name="manager_email"/>
+                                    <field name="manager_citizenship"/>
+                                </group>
+                            </group>
                         </group>
-
-                        <group>
-                            <separator string="Summary"></separator>
-                            <field name="summary" nolabel="1" colspan="4" widget="html" options="{'resizable':true}" placeholder="Escriu la descripció..."></field>
+                        
+                        <group colspan="2">
+                            <label for="summary" colspan="2"/>
+                            <field name="summary" nolabel="1" colspan="2" widget="html" options="{'resizable':true}"/>
                         </group>
-                    </group>
-
-                    <group>
-                        <group string="Subjects">
-                            <!-- Ara apuntem a la classe intermitja SchoolCourseSubject -->
-                            <!-- TO DO Ordenar assignatures per numero -->
-                            <field name="course_subject_ids" nolabel="1">
-                                <list>
-                                    <field name="number"></field>
-                                    <field name="subject_id" string="Subject"></field>
+                        
+                        <group string="Subjects" colspan="2">
+                            <field name="course_subject_ids" nolabel="1" colspan="2" readonly="False">
+                                <list editable="top">
+                                    <field name="number"/>
+                                    <field name="subject_id"/>
                                 </list>
                             </field>
                         </group>
-
-                        <group string="Editions">
-                            <field name="edition_ids" nolabel="1">
+                        
+                        <group string="Editions" colspan="2">
+                            <field name="edition_ids" nolabel="1" colspan="2" readonly="False">
                                 <list>
-                                    <field name="name"></field>
-                                    <field name="date_start"></field>
-                                    <field name="date_end"></field>
+                                    <field name="name"/>
+                                    <field name="date_start"/>
+                                    <field name="date_end"/>
                                 </list>
                                 <form>
                                     <group>
                                         <group colspan="2">
-                                            <field name="name"></field>
+                                            <field name="name"/>
                                         </group>
                                         <group>
-                                            <field name="date_start"></field>
+                                            <field name="date_start"/>
                                         </group>
                                         <group>
-                                            <field name="date_end"></field>
+                                            <field name="date_end"/>
                                         </group>
                                     </group>
                                 </form>
                             </field>
                         </group>
+                        
                     </group>
                 </sheet>
             </form>
@@ -214,7 +218,7 @@
                 <sheet>
 
                     <!-- Per posar una imatge, fem fields.Binary i posem el widget="image" -->
-                    <field name="photo" widget="image" class="oe_avatar"></field>
+                    <field name="photo" widget="image" class="oe_avatar" nolabel="1"></field>
 
                     <group> <!-- col = "4" -->
                         <group string="Personal data" col="8">
