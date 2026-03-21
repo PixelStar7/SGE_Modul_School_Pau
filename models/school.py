@@ -257,7 +257,14 @@ class SchoolThematic(models.Model):
 class SchoolCourseEdition(models.Model):
     _name = 'school.course.edition'
     _description = 'Course Edition Management'
-    _order = 'name'
+    _order = 'date_start' # Les edicions s'ordenen per data d'inici
+
+    # SQL Constraints per evitar que un mateix curs tingui dues edicions començant el matetx dia
+    _sql_constraints = [
+        ('unique_course_date_start', 'unique(course_id, date_start)',
+          _('It is not possible 2 course editions with the same course and start date.'))
+    ]
+    
 
     name = fields.Char('Name', size=60, required=True)
     date_start = fields.Date('Start Date', required=True)
@@ -281,25 +288,42 @@ class SchoolCourseEdition(models.Model):
             # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
             # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False")
             self.name = self.name.title()
+    
+    @api.depends('name', 'course_id')
+    def _compute_display_name(self):
+        for courseEdition in self:
+            if courseEdition.name != False and courseEdition.course_id != False:
+                # Mostrarà: "Nom Course - Nom Edició"
+                courseEdition.display_name = courseEdition.course_id.name + " - " + courseEdition.name
+            else:
+                courseEdition.display_name = ''
+
 
 
 class SchoolCourseSubject(models.Model):
     _name = 'school.course.subject'
     _description = 'Course Subject Management'
     _order = 'number'
+
+    # SQL Constraints per evitar duplicitat en la combinació de camps
     _sql_constraints = [
-        ('course_subject_unique', 'unique(course_id, subject_id)', _('The subject in a course must be unique!'))
+        ('course_subject_unique', 'unique(course_id, subject_id)', _('The subject in a course must be unique!')),
+        ('course_number_unique', 'unique(course_id, number)', _('The number in a course must be unique!'))
     ]
 
     number = fields.Integer('Number', required=True)
 
     # Relació Many2one (CourseSubject --> Course).
     # Classe apuntada / nom de la relació
-    course_id = fields.Many2one('school.course', 'Course', ondelete='cascade', required=True) # Si s'elimina un curs, s'eliminaràn les assignatures del mateix
+    course_id = fields.Many2one('school.course', 'Course', required=True, ondelete='cascade') # Si s'elimina un curs, s'eliminaràn les assignatures del mateix
 
     # Relació Many2one (CourseSubject --> Subject).
     # Classe apuntada / nom de la relació
     subject_id = fields.Many2one('school.subject', 'Subject', required=True, ondelete='restrict') # No es pot esborrar una assignatura si ja està assignada a un curs
+
+    # Camp relacionat per portar les hores de l'assignatura a aquesta taula intermitja
+    subject_hours = fields.Integer('Hours', related = 'subject_id.hours')
+
 
     # Constrains CourseSubject
     @api.constrains('number')
@@ -307,3 +331,33 @@ class SchoolCourseSubject(models.Model):
         for courseSubject in self:
             if courseSubject.number <= 0:
                 raise ValidationError(_('Number must be positive.'))
+    
+    # Display_name de la taula sencera
+    @api.depends('course_id', 'subject_id', 'number')
+    def _compute_display_name(self):
+        for courseSubject in self:
+            if courseSubject.course_id != False and courseSubject.subject_id != False and courseSubject.number != False:
+                # Mostrarà: "Nom course - 1 - Introducció"
+                courseSubject.display_name = courseSubject.course_id.name + " - " + str(courseSubject.number) + " - " + courseSubject.subject_id.name
+            else:
+                courseSubject.display_name = ''
+
+
+# ===== Classes Ternàries =====
+
+# "Aquest PROFESSOR, en aquesta EDICIÓ concreta d'un curs, fa aquesta ASSIGNATURA"
+class SchoolTeaching(models.Model):
+    _name = 'school.teaching'
+    _description = 'Teaching Management (Teacher-Subject-Edition)'
+
+    # Qui fa la classe?
+    teacher_id = fields.Many2one('school.teacher', 'Teacher', required=True)
+
+    # En quina edició del curs? (Ex: Python Bàsic - Edició Octubre)
+    edition_id = fields.Many2one('school.course.edition', 'Edition', required=True)
+
+    # Camp relacionat per saber a quin curs pertany aquesta edició
+    edition_course_id = fields.Many2one('school.course', related="edition_id.course_id")
+
+    # Quina assignatura impartirà? (Apunta a la taula intermitja, no a l'assignatura)
+    subject_id = fields.Many2one('school.course.subject', 'Subject', required=True)

@@ -64,6 +64,7 @@
                                 <list editable="top">
                                     <field name="number"/>
                                     <field name="subject_id"/>
+                                    <field name="subject_hours"/>
                                 </list>
                             </field>
                         </group>
@@ -329,16 +330,16 @@
 
                     <group colspan="4">
                         <group string="Child Thematics">
-                            <field name="child_ids" readonly="0" nolabel="1" widget="many2many">
-                                <list create="0" delete="0">
+                            <field name="child_ids" nolabel="1" colspan="2">
+                                <list>
                                     <field name="name"></field>
                                 </list>
                             </field>
                         </group>
 
                         <group string="Courses">
-                            <field name="course_ids" readonly="0" nolabel="1" widget="many2many">
-                                <list create="0" delete="0">
+                            <field name="course_ids" nolabel="1" colspan="2">
+                                <list>
                                     <field name="name"></field>
                                     <field name="hours"></field>
                                     <field name="manager_id"></field>
@@ -361,4 +362,31 @@
     <!-- Submenu de Temàtiques -->
      <menuitem name="Thematics" id="menu_thematics" parent="menu_configuration" sequence="50" action="school_thematic_action"/>
 
+
+    
+<!-- GESTIÓ DE TEACHING -->
+    
+    <!-- Vista Llista de Teaching -->
+     <record model="ir.ui.view" id="school_teaching_list">
+        <field name="name">school.teaching.list</field>
+        <field name="model">school.teaching</field>
+        <field name="arch" type="xml">
+            <list string="Teaching" editable="top">
+                <field name="edition_id"/>
+                <field name="subject_id" domain="[('course_id', '=', edition_course_id)]"/>
+                <field name="teacher_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Acció de Teaching -->
+     <record model="ir.actions.act_window" id="school_teaching_action">
+        <field name="name">Teaching</field>
+        <field name="res_model">school.teaching</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- Submenu de Teaching -->
+     <menuitem name="Teaching" id="menu_teaching" parent="menu_root" sequence="75" action="school_teaching_action"/>
+    
 </odoo>
