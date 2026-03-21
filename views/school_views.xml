@@ -364,7 +364,7 @@
 
 
     
-<!-- GESTIÓ DE TEACHING -->
+    <!-- GESTIÓ DE TEACHING -->
     
     <!-- Vista Llista de Teaching -->
      <record model="ir.ui.view" id="school_teaching_list">
@@ -372,9 +372,15 @@
         <field name="model">school.teaching</field>
         <field name="arch" type="xml">
             <list string="Teaching" editable="top">
-                <field name="edition_id"/>
-                <field name="subject_id" domain="[('course_id', '=', edition_course_id)]"/>
-                <field name="teacher_id"/>
+                <field name="edition_id" readonly="subject_id != False"/>
+
+                <field name="subject_id" 
+                       domain="[('course_id', '=', edition_course_id)]"
+                       readonly="edition_id == False or teacher_id != False"/>
+
+                <field name="teacher_id"
+                       domain="[('id', 'in', subject_teacher_ids)]"
+                       readonly="subject_id == False"/>
             </list>
         </field>
     </record>
@@ -388,5 +394,32 @@
 
     <!-- Submenu de Teaching -->
      <menuitem name="Teaching" id="menu_teaching" parent="menu_root" sequence="75" action="school_teaching_action"/>
+    
+
+    
+    <!-- GESTIÓ DE COURSEEDITION -->
+    
+    <!-- Vista Calendar de CourseEdition -->
+    <record model="ir.ui.view" id="school_course_edition_calendar">
+        <field name="name">school.course.edition.calendar</field>
+        <field name="model">school.course.edition</field>
+        <field name="arch" type="xml">
+            <calendar date_start="date_start" mode="month">
+                <field name="course_id"/>
+                <field name="name"/>
+                <field name="date_end"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Acció de CourseEdition -->
+    <record model="ir.actions.act_window" id="school_course_edition_action">
+        <field name="name">Course Editions</field>
+        <field name="res_model">school.course.edition</field>
+        <field name="view_mode">calendar</field>
+    </record>
+
+    <!-- Submenu de CourseEdition -->
+     <menuitem name="Course Editions" id="menu_course_edition" parent="menu_configuration" sequence="20" action="school_course_edition_action"/>
     
 </odoo>

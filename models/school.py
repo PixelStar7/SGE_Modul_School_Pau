@@ -361,3 +361,7 @@ class SchoolTeaching(models.Model):
 
     # Quina assignatura impartirà? (Apunta a la taula intermitja, no a l'assignatura)
     subject_id = fields.Many2one('school.course.subject', 'Subject', required=True)
+
+    # Camp relacionat de "Doble Salt" per a tenir la llista de profes per a l'assignatura
+    # Teaching -> CourseSubject (subject_id) -> Subject (subject_id) -> Teacher (teacher_ids)
+    subject_teacher_ids = fields.Many2many('school.teacher', related='subject_id.subject_id.teacher_ids')
