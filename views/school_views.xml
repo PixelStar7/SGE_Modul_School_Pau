@@ -291,11 +291,23 @@
         </field>
     </record>
 
+    <!-- Vista Calendari de Professors -->
+     <record model="ir.ui.view" id="school_teacher_calendar">
+        <field name="name">school.teacher.calendar</field>
+        <field name="model">school.teacher</field>
+        <field name="arch" type="xml">
+            <calendar string="Birthdays" date_start="current_birthday" mode="month" color="id">
+                <field name="display_name"></field>
+                <field name="celebrated_age" string="Fa anys:"></field>
+            </calendar>
+        </field>
+     </record>
+
     <!-- Acció de Professors -->
     <record model="ir.actions.act_window" id="school_teacher_action">
         <field name="name">Teachers</field>
         <field name="res_model">school.teacher</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">list,calendar,form</field>
         <!-- Desactivem el camp active per a que surtin tots els professors, encara que estiguin arxivats o desactivats -->
         <field name="context">{'active_test': False}</field>
     </record>

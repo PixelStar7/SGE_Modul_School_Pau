@@ -165,7 +165,10 @@ class SchoolTeacher(models.Model):
     subject_count = fields.Integer('Subjects Authorized', compute='_compute_subject_count')
     teaching_count = fields.Integer('Teachings Assigned', compute='_compute_teaching_count')
 
-    
+    # Camps per calcular Aniversaris (Exercici Setmana Santa 1)
+    current_birthday = fields.Date('Current Birthday', compute='_compute_birthday_info')
+    celebrated_age = fields.Integer('Celebrated Age', compute='_compute_birthday_info')
+
     # Mètodes Teacher
     # La barra baixa '_' --> significa private
     # self és equivalent al this de Java;
@@ -189,6 +192,27 @@ class SchoolTeacher(models.Model):
                 teacher.age = relativedelta(avui, teacher.birthdate).years
             else:
                 teacher.age = 0
+    
+    @api.depends('birthdate')
+    def _compute_birthday_info(self):
+        current_year = date.today().year
+        for teacher in self:
+            if teacher.birthdate:
+                try:
+                    # Intentem canviar només l'any de la data de naixement per l'any actual
+                    teacher.current_birthday = teacher.birthdate.replace(year=current_year)
+                except ValueError:
+                    # Si peta, vol dir que va néixer un 29 de febrer i aquest any no és de traspàs!
+                    # Passem l'aniversari a l'1 de març
+                    teacher.current_birthday = date(current_year, 3, 1)
+            
+                # Calculem l'edat que celebra en aquesta data
+                teacher.celebrated_age = current_year - teacher.birthdate.year
+            else:
+                teacher.current_birthday = False
+                teacher.celebrated_age = 0
+
+    
 
     # Constrains Teacher
     # Restriccions o checks sobre la classe Teacher
