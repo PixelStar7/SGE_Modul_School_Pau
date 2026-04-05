@@ -52,13 +52,14 @@ class SchoolCourse(models.Model):
     # Classe apuntada / camp de la classe apuntada que fa la relació / nom de la relació
     edition_ids = fields.One2many('school.course.edition', 'course_id', 'CourseEdition', readonly=True)
 
-    # Constraints Course
+    # Constrains Course
     @api.constrains('hours')
     def _check_hours(self):
         for course in self:
             if (course.hours <= 0):
                 raise ValidationError(_('Course hours must be positive.'))
 
+    # OnChange Course
     @api.onchange('name')
     def _onchange_name(self):
         if self.name != False:
@@ -158,6 +159,12 @@ class SchoolTeacher(models.Model):
 
     # Nom del camp calculat / Nom del mètode que ho computa
     age = fields.Integer('Age', compute='_compute_age')
+
+    # Camps comptador
+    course_count = fields.Integer('Courses Managed', compute='_compute_course_count')
+    subject_count = fields.Integer('Subjects Authorized', compute='_compute_subject_count')
+    teaching_count = fields.Integer('Teachings Assigned', compute='_compute_teaching_count')
+
     
     # Mètodes Teacher
     # La barra baixa '_' --> significa private
@@ -218,6 +225,26 @@ class SchoolTeacher(models.Model):
         res = super(SchoolTeacher, self)._auto_init()
         tools.create_unique_index(self._cr, 'school_teacher_unique_tin', self.table, [('lower(tin)')])
         return res
+    
+    # Mètodes Compute per als comptadors
+    @api.depends('course_ids')
+    def _compute_course_count(self):
+        for teacher in self:
+            # Comptem quants elements té la llista One2Many
+            teacher.course_count = len(teacher.course_ids)
+    
+    @api.depends('subject_ids')
+    def _compute_subject_count(self):
+        for teacher in self:
+            # Comptem quants elements té la llista Many2Many
+            teacher.subject_count = len(teacher.subject_ids)
+    
+    def _compute_teaching_count(self):
+        for teacher in self:
+            # Fem una consulta a la base de dades (search_count) a la taula school.teaching
+            # Busquem els registres on el 'teacher_id' sigui igual a la ID d'aquest professor
+            teacher.teaching_count = self.env['school.teaching'].search_count([('teacher_id', '=', teacher.id)])
+
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'
