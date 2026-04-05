@@ -325,6 +325,9 @@ class SchoolCourseEdition(models.Model):
     # Classe apuntada / nom de la relació
     course_id = fields.Many2one('school.course', 'Course', ondelete='cascade') # Si s'elimina un curs, s'eliminaràn les edicions del mateix
 
+    # Camp calculat per a comptar els professors
+    teacher_count = fields.Integer('Teacher count', compute='_compute_teacher_count')
+
     # Constrains CourseEdition
     @api.constrains('date_start', 'date_end')
     def _check_dates(self):
@@ -349,6 +352,11 @@ class SchoolCourseEdition(models.Model):
             else:
                 courseEdition.display_name = ''
 
+    # Comptador de Professors
+    def _compute_teacher_count(self):
+        for edition in self:
+            # Comptem quants registres a school.teaching tenen aquesta edition_id
+            edition.teacher_count = self.env['school.teaching'].search_count([('edition_id', '=', edition.id)])
 
 
 class SchoolCourseSubject(models.Model):

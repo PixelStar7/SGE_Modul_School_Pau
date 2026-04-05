@@ -424,15 +424,40 @@
                 <field name="course_id"/>
                 <field name="name"/>
                 <field name="date_end"/>
+                <field name="teacher_count" string="Teachers"/>
             </calendar>
         </field>
     </record>
+
+    <!-- Vista Formulari de CourseEdition -->
+     <record model="ir.ui.view" id="school_course_edition_form">
+        <field name="name">school.course.edition.form</field>
+        <field name="model">school.course.edition</field>
+        <field name="arch" type="xml">
+            <!-- Per a prohibir que s'esborrin edicions, posem el duplicate="0" i delete="0" -->
+            <form string="Course Edition" duplicate="0" delete="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"></field>
+                            <field name="course_id"></field>
+                        </group>
+                        <group>
+                            <field name="date_start"></field>
+                            <field name="date_end"></field>
+                            <field name="teacher_count"></field>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+     </record>
 
     <!-- Acció de CourseEdition -->
     <record model="ir.actions.act_window" id="school_course_edition_action">
         <field name="name">Course Editions</field>
         <field name="res_model">school.course.edition</field>
-        <field name="view_mode">calendar</field>
+        <field name="view_mode">calendar,form</field>
     </record>
 
     <!-- Submenu de CourseEdition -->
