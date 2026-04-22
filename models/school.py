@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _, tools
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
@@ -269,6 +269,26 @@ class SchoolTeacher(models.Model):
             # Busquem els registres on el 'teacher_id' sigui igual a la ID d'aquest professor
             teacher.teaching_count = self.env['school.teaching'].search_count([('teacher_id', '=', teacher.id)])
 
+    # Sobreescriptura del mètode unlink --> Quan s'esborra un Teacher
+    def unlink(self):
+        for teacher in self:
+            # És manager d'algun curs?
+            if (len(teacher.course_ids) > 0):
+                # Si té cursos, no deixem borrar
+                raise UserError(_("You cannot delete Teachers that have courses managed."))
+            
+            # Té teachings?
+            teachings = self.env['school.teaching'].search([('teacher_id', '=', teacher.id)])
+
+            # Si en té, les esborrem, cascade manual
+            for t in teachings:
+                t.unlink()
+        
+        # Ara si, borrem realment
+        resultat = super().unlink()
+
+        # Retornem true o false si s'ha pogut esborrar o no
+        return resultat
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'
@@ -356,7 +376,14 @@ class SchoolCourseEdition(models.Model):
     def _compute_teacher_count(self):
         for edition in self:
             # Comptem quants registres a school.teaching tenen aquesta edition_id
-            edition.teacher_count = self.env['school.teaching'].search_count([('edition_id', '=', edition.id)])
+            teachings = self.env['school.teaching'].search([('edition_id', '=', edition.id)])
+            teachers = []
+
+            for t in teachings:
+                if t.teacher_id not in teachers:
+                    teachers.append(t.teacher_id)
+            
+            edition.teacher_count = len(teachers)
 
 
 class SchoolCourseSubject(models.Model):

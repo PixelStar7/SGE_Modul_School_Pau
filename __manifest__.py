@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'School',
-    'version': '11.0',
+    'version': '13.0',
     'category': 'Education',
     'summary': 'School Management',
     'description': """
