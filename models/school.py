@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api, _, tools
 from odoo.exceptions import ValidationError, UserError
-from datetime import date
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 
 from ..utils import is_valid_email
@@ -339,8 +339,27 @@ class SchoolTeacher(models.Model):
             if 'tin' in vals and vals['tin']:
                 vals['tin'] = vals['tin'].upper() # Ho posem a majúscules
         
-        # I cridem al mètode pare perquè faci la creació real a la BD
-        return super().create(vals_list)
+        # Cridem al mètode pare perquè faci la creació real a la BD
+        teachers = super().create(vals_list)
+    
+        # Versió 15: Omplim l'historial si hi ha un sou inicial
+        for teacher in teachers:
+            if teacher.salary: # Si se l'hi ha assignat un sou
+                # Agafem hora del servidor i la convertim a l'hora del país de l'usuari
+                ara_utc = datetime.now()
+                ara_usuari = fields.Datetime.context_timestamp(self, ara_utc)
+
+                # Creem el registre a la nova taula sense que l'usuari toqui res!
+                self.env['school.teacher.salary.history'].create({
+                    'teacher_id': teacher.id,
+                    'salary': teacher.salary,
+                    'user_id': self.env.uid, # ID de l'usuari connectat ara mateix
+                    'date': ara_usuari.date(),
+                    'time_s': ara_usuari.strftime("%H:%M:%S"), # Format text: "14:30:00"
+                    'time_f': ara_usuari.hour + ara_usuari.minute / 60.0 + ara_usuari.second / 3600.0 # Format Float per a Odoo
+                })
+
+        return teachers
 
 
     # Sobreescriptura del mètode write --> Quan es modifica un Teacher
@@ -350,8 +369,24 @@ class SchoolTeacher(models.Model):
             vals['tin'] = vals['tin'].upper()
         
         # Cridem al pare perquè guardi la modificació
-        return super().write(vals)
+        res = super().write(vals)
 
+        # Versió 15: Si el que s'ha modificat inclou el sou, guardem historial!
+        if 'salary' in vals:
+            ara_utc = datetime.now()
+            ara_usuari = fields.Datetime.context_timestamp(self, ara_utc)
+            
+            for teacher in self:
+                self.env['school.teacher.salary.history'].create({
+                    'teacher_id': teacher.id,
+                    'salary': teacher.salary, # Com que ja hem fet el 'super().write', teacher.salary ja té el SOU NOU!
+                    'user_id': self.env.uid,
+                    'date': ara_usuari.date(),
+                    'time_s': ara_usuari.strftime("%H:%M:%S"),
+                    'time_f': ara_usuari.hour + ara_usuari.minute / 60.0 + ara_usuari.second / 3600.0
+                })
+                
+        return res
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'
@@ -533,3 +568,21 @@ class SchoolTeaching(models.Model):
     # Camp relacionat de "Doble Salt" per a tenir la llista de profes per a l'assignatura
     # Teaching -> CourseSubject (subject_id) -> Subject (subject_id) -> Teacher (teacher_ids)
     subject_teacher_ids = fields.Many2many('school.teacher', related='subject_id.subject_id.teacher_ids')
+
+
+# ===== Classes D'Informació =====
+
+class SchoolTeacherSalaryHistory(models.Model):
+    _name = 'school.teacher.salary.history'
+    _description = 'Teacher Salary Description'
+
+    # Relació amb Teacher (si s'esborra el Teacher, s'esborra el seu historial)
+    teacher_id = fields.Many2one('school.teacher', 'Teacher', required=True, ondelete='cascade')
+    salary = fields.Integer('Salary', required=True)
+
+    # 'res.users' és la taula interna d'Odoo on hi ha els usuaris que fan login
+    user_id = fields.Many2one('res.users', 'User', required=True)
+
+    date = fields.Date('Date', required=True)
+    time_s = fields.Char('Time (String)')
+    time_f = fields.Float('Time (Float)')
