@@ -99,13 +99,52 @@ class SchoolSubject(models.Model):
             if (subject.hours <= 0):
                 raise ValidationError(_('Subject hours must be positive.'))
 
-    @api.onchange('name')
-    def _onchange_name(self):
-        if self.name != False:
-            # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
-            # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False")
-            self.name = self.name.capitalize()
+    # Mètode comentat per l'addició del mètode write
+    # @api.onchange('name')
+    # def _onchange_name(self):
+    #     if self.name != False:
+    #         # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
+    #         # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False")
+    #         self.name = self.name.capitalize()
 
+
+    # Sobreescriptura del mètode create --> Quan es crea un Subject
+    # Mètode auxiliar creat pel professor per no repetir codi a dins del write
+    def _write_aux(self, values):
+        # Busquem quins idiomes estan activats a la base de dades
+        langs = self.env['res.lang'].search([('active', '=', True)])
+        
+        # Esbrinem quin és l'idioma de l'usuari que està connectat ara mateix
+        usu_lang = self.env['res.users'].browse(self.env.uid).lang
+        
+        # Recorrem les assignatures afectades per la modificació
+        for r in self:
+            for lang in langs:
+                # Només actuem si l'idioma no és el de l'usuari (perquè aquest ja s'ha fet al write principal)
+                if lang.code != usu_lang:
+                    # 'with_context(lang=lang.code)' fa que l'Odoo es pensi que som un usuari d'aquell idioma
+                    aux = r.with_context(lang=lang.code).name
+                    
+                    if aux != False:
+                        # Posem la primera lletra en majúscula
+                        aux = aux.capitalize()
+                        # I tornem a usar el context per guardar-ho directament a la traducció d'aquell idioma
+                        r.with_context(lang=lang.code).write({'name': aux})
+
+    def write(self, values):
+        # Si s'està modificant el 'name', apliquem capitalize a l'idioma actual de l'usuari
+        if 'name' in values and values['name']:
+            values['name'] = values['name'].capitalize()
+            
+        # Fem el desament real cridant a la classe base
+        r = super().write(values)
+        
+        # Si s'ha modificat el 'name', cridem la nostra funció auxiliar perquè arregli els altres idiomes
+        if 'name' in values:
+            self._write_aux(values)
+            
+        # Retornem si s'ha pogut guardar
+        return r
 
 class SchoolTeacher(models.Model):
     _name = 'school.teacher'
@@ -237,13 +276,14 @@ class SchoolTeacher(models.Model):
         for teacher in self:
             if is_valid_email(teacher.email) == False:
                 raise ValidationError(_('Email is not valid.'))
-            
-    @api.onchange("tin")
-    def _onchange_tin(self):
-        if self.tin != False:
-            # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
-            # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False")
-            self.tin = self.tin.upper()
+    
+    # Mètode comentat per l'addició del create i write, més avall
+    # @api.onchange("tin")
+    # def _onchange_tin(self):
+    #     if self.tin != False:
+    #         # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
+    #         # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False")
+    #         self.tin = self.tin.upper()
     
     def _auto_init(self):
         res = super(SchoolTeacher, self)._auto_init()
@@ -289,6 +329,29 @@ class SchoolTeacher(models.Model):
 
         # Retornem true o false si s'ha pogut esborrar o no
         return resultat
+    
+    # Sobreescriptura del mètode create --> Quan es crea un Teacher
+    @api.model_create_multi
+    def create(self, vals_list):
+        # vals_list és una llista de diccionaris. Cada diccionari és un professor nou.
+        for vals in vals_list:
+            # Comprovem si s'està enviant el camp 'tin' i si té algun valor
+            if 'tin' in vals and vals['tin']:
+                vals['tin'] = vals['tin'].upper() # Ho posem a majúscules
+        
+        # I cridem al mètode pare perquè faci la creació real a la BD
+        return super().create(vals_list)
+
+
+    # Sobreescriptura del mètode write --> Quan es modifica un Teacher
+    def write(self, vals):
+        # En el write, 'vals' és un unic diccionari amb els camps que S'HAN MODIFICAT
+        if 'tin' in vals and vals['tin']:
+            vals['tin'] = vals['tin'].upper()
+        
+        # Cridem al pare perquè guardi la modificació
+        return super().write(vals)
+
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'
@@ -356,12 +419,13 @@ class SchoolCourseEdition(models.Model):
                 if courseEdition.date_end < courseEdition.date_start:
                     raise ValidationError(_('End date must be newer or equal than start date.'))
 
-    @api.onchange('name')
-    def _onchange_name(self):
-        if self.name != False:
-            # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
-            # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False")
-            self.name = self.name.title()
+    # Mètode comentat per l'addició dels mètodes create i write
+    # @api.onchange('name')
+    # def _onchange_name(self):
+    #     if self.name != False:
+    #         # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
+    #         # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False")
+    #         self.name = self.name.title()
     
     @api.depends('name', 'course_id')
     def _compute_display_name(self):
@@ -384,6 +448,24 @@ class SchoolCourseEdition(models.Model):
                     teachers.append(t.teacher_id)
             
             edition.teacher_count = len(teachers)
+
+
+    # Sobreescriptura del mètode create --> Quan es crea un CourseEdition
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if 'name' in vals and vals['name']:
+                vals['name'] = vals['name'].title() # Ho posem a format Títol (Primeres lletres a majúscula)
+        
+        return super().create(vals_list)
+    
+
+    # Sobreescriptura del mètode write --> Quan es crea un CourseEdition
+    def write(self, vals):
+        if 'name' in vals and vals['name']:
+            vals['name'] = vals['name'].title()
+        
+        return super().write(vals)
 
 
 class SchoolCourseSubject(models.Model):
