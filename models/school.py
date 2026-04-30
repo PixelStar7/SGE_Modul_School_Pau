@@ -66,6 +66,15 @@ class SchoolCourse(models.Model):
             # Cal controlar que no sigui buit (quan es dona d'alta o modifica deixant-lo buit
             # ja que no es pot aplicar upper() sobre un "buit" (en realitat "False"))
             self.name = self.name.capitalize()
+    
+    # Sobreescriptura de mètode write
+    def write(self, values):
+        # Interceptem si es vol deixar manager_id buit, cosa que no és factible:
+        if 'manager_id' in values and values['manager_id'] == False:
+            raise UserError(_("Process aborted because a course cannot be left without a responsible teacher"))
+        
+        res = super().write(values)
+        return res
 
 
 class SchoolSubject(models.Model):
@@ -109,6 +118,17 @@ class SchoolSubject(models.Model):
 
 
     # Sobreescriptura del mètode create --> Quan es crea un Subject
+    @api.model_create_multi
+    def create(self, values):
+        # values és una llista de diccionaris amb els valors dels camps dels registres a inserir
+        for d in values:
+            # 'name' és obligatori. No cal preguntar-nos si és en el diccionari en qüestió
+            d['name'] = d['name'].capitalize()
+        
+        r = super().create(values)
+        return r
+
+
     # Mètode auxiliar creat pel professor per no repetir codi a dins del write
     def _write_aux(self, values):
         # Busquem quins idiomes estan activats a la base de dades
@@ -332,61 +352,60 @@ class SchoolTeacher(models.Model):
     
     # Sobreescriptura del mètode create --> Quan es crea un Teacher
     @api.model_create_multi
-    def create(self, vals_list):
-        # vals_list és una llista de diccionaris. Cada diccionari és un professor nou.
-        for vals in vals_list:
+    def create(self, values):
+        # values és una llista de diccionaris. Cada diccionari és un professor nou.
+        for d in values:
             # Comprovem si s'està enviant el camp 'tin' i si té algun valor
-            if 'tin' in vals and vals['tin']:
-                vals['tin'] = vals['tin'].upper() # Ho posem a majúscules
+            if 'tin' in d and d['tin'] != False:
+                d['tin'] = d['tin'].upper() # Ho posem a majúscules
         
         # Cridem al mètode pare perquè faci la creació real a la BD
-        teachers = super().create(vals_list)
+        teachers = super().create(values)
     
         # Versió 15: Omplim l'historial si hi ha un sou inicial
-        for teacher in teachers:
-            if teacher.salary: # Si se l'hi ha assignat un sou
-                # Agafem hora del servidor i la convertim a l'hora del país de l'usuari
-                ara_utc = datetime.now()
-                ara_usuari = fields.Datetime.context_timestamp(self, ara_utc)
-
-                # Creem el registre a la nova taula sense que l'usuari toqui res!
-                self.env['school.teacher.salary.history'].create({
-                    'teacher_id': teacher.id,
-                    'salary': teacher.salary,
-                    'user_id': self.env.uid, # ID de l'usuari connectat ara mateix
-                    'date': ara_usuari.date(),
-                    'time_s': ara_usuari.strftime("%H:%M:%S"), # Format text: "14:30:00"
-                    'time_f': ara_usuari.hour + ara_usuari.minute / 60.0 + ara_usuari.second / 3600.0 # Format Float per a Odoo
-                })
+        # Incorporem informació del salari a SchoolTeacherSalaryHistory
+        momentActual = fields.Datetime.context_timestamp(self, datetime.now())
+        for teacher in teachers: # Per cada teacher inserit
+            history = {}
+            history['teacher_id'] = teacher.id
+            history['user_id'] = self.env.uid # L'usuari connectat ara mateix
+            history['date'] = momentActual.strftime('&Y-%m-%d')
+            history['time_s'] = momentActual.strftime('%H:%M')
+            history['time_f'] = int(momentActual.strftime('%H')) + float(momentActual.strftime('%M')) / 60
+            history['salary'] = teacher.salary
+            self.env['school.teacher.salary.history'].create(history)
 
         return teachers
 
 
     # Sobreescriptura del mètode write --> Quan es modifica un Teacher
-    def write(self, vals):
-        # En el write, 'vals' és un unic diccionari amb els camps que S'HAN MODIFICAT
-        if 'tin' in vals and vals['tin']:
-            vals['tin'] = vals['tin'].upper()
+    def write(self, values):
+        # self conté els registres a modificar
+        # En el write, 'values' és un unic diccionari amb els camps que S'HAN MODIFICAT
+        if 'tin' in values and values['tin'] != False:
+            values['tin'] = values['tin'].upper()
         
         # Cridem al pare perquè guardi la modificació
-        res = super().write(vals)
+        teachers = super().write(values)
 
-        # Versió 15: Si el que s'ha modificat inclou el sou, guardem historial!
-        if 'salary' in vals:
-            ara_utc = datetime.now()
-            ara_usuari = fields.Datetime.context_timestamp(self, ara_utc)
-            
+        # Versió 15: Si el que s'ha modificat inclou el sou, guardem historial a SchoolTeacherSalaryHistory
+        momentActual = fields.Datetime.context_timestamp(self, datetime.now())
+        if teachers == True and 'salary' in values:
             for teacher in self:
-                self.env['school.teacher.salary.history'].create({
-                    'teacher_id': teacher.id,
-                    'salary': teacher.salary, # Com que ja hem fet el 'super().write', teacher.salary ja té el SOU NOU!
-                    'user_id': self.env.uid,
-                    'date': ara_usuari.date(),
-                    'time_s': ara_usuari.strftime("%H:%M:%S"),
-                    'time_f': ara_usuari.hour + ara_usuari.minute / 60.0 + ara_usuari.second / 3600.0
-                })
-                
-        return res
+                history = {}
+                history['teacher_id'] = teacher.id
+                history['user_id'] = self.env.uid
+                history['date'] = momentActual.strftime('%Y-%m-%d')
+                history['time_s'] = momentActual.strftime('%H:%M')
+                history['time_f'] = int(momentActual.strftime('%H')) + float(momentActual.strftime('%M')) / 60
+                history['salary'] = teacher.salary
+                self.env['school.teacher.salary.history'].create(history)
+
+        return teachers
+        
+
+
+# Com que ja hem fet el 'super().write', teacher.salary ja té el SOU NOU!
 
 class SchoolThematic(models.Model):
     _name = 'school.thematic'
@@ -575,14 +594,20 @@ class SchoolTeaching(models.Model):
 class SchoolTeacherSalaryHistory(models.Model):
     _name = 'school.teacher.salary.history'
     _description = 'Teacher Salary Description'
+    _order = 'id desc'
 
     # Relació amb Teacher (si s'esborra el Teacher, s'esborra el seu historial)
     teacher_id = fields.Many2one('school.teacher', 'Teacher', required=True, ondelete='cascade')
-    salary = fields.Integer('Salary', required=True)
 
     # 'res.users' és la taula interna d'Odoo on hi ha els usuaris que fan login
-    user_id = fields.Many2one('res.users', 'User', required=True)
+    user_id = fields.Many2one('res.users', 'User', required=True, ondelete="restrict")
 
     date = fields.Date('Date', required=True)
-    time_s = fields.Char('Time (String)')
-    time_f = fields.Float('Time (Float)')
+    time_f = fields.Float('Time (Float)', digits=(5,2), required=True)
+    time_s = fields.Char('Time (String)', size=5, required=True)
+    salary = fields.Integer('Salary', required=True)
+
+
+    # Sobreescriptura del mètode unlink
+    def unlink(self):
+        raise UserError(_("Is not possible to delete a salary history."))
