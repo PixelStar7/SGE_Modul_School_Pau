@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Categoria/aplicació per la que definirem els diversos grups/rols -->
+        <record id="module_category_school" model="ir.module.category">
+            <field name="name">School</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Definició dels grups/rols que interessi -->
+
+        <record id="group_school_nothing" model="res.groups">
+            <field name="name">Nothing</field>
+            <field name="category_id" ref="module_category_school"/>
+        </record>
+
+        <record id="group_school_teacher" model="res.groups">
+            <field name="name">Teacher</field>
+            <field name="category_id" ref="module_category_school"/>
+        </record>
+
+        <record id="group_school_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="category_id" ref="module_category_school"/>
+            <!-- En cas que es vulgui herència:-->
+            <!--      <field name="implied_ids" -->
+            <!--             eval="[(4,ref('group_school_teacher')),(4,ref('group_school_nothing'))]"/>-->
+        </record>
+    </data>
+
+    <!-- Per assignar el group "manager" a l'usuari "admin" -->
+    <function model="res.users" name="write">
+        <value eval="[ref('base.user_admin')]"/>
+        <value eval="{'groups_id': [(4, ref('school.group_school_manager'))]}"/>
+    </function>
+
+    <!-- Per assignar el group "manager" a l'usuari "OdooBoot" -->
+    <function model="res.users" name="write">
+        <value eval="[ref('base.user_root')]"/>
+        <value eval="{'groups_id': [(4, ref('school.group_school_manager'))]}"/>
+    </function>
+</odoo>
