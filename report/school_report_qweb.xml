@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Informes QWeb -->
+    <!-- Action del report de Cursos -->
+    <record id="action_qweb_report_course" model="ir.actions.report">
+        <field name="name">Course Report</field>
+        <field name="model">school.course</field>
+        <field name="report_type">qweb-pdf</field>
+        <!-- Usar qweb-html si es vol generar en html-->
+        <field name="report_name">school.report_course_template</field>
+        <field name="report_file">school.report_course_template</field>
+        <field name="model_id" ref="school.model_school_course"/>
+        <field name="binding_model_id" ref="school.model_school_course"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Obligatori indicar el nom del mòdul on resideix, encara que sigui el propi -->
+    <!-- Template del report de Cursos -->
+    <template id="report_course_template">   <!-- Invocat pel report a l'atribut "name"-->
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page" style="font-family:sans-serif">
+                    <!--Necessari indicar aquest style per a que la renderització cap a PDF mostri els textos marcats en negreta                            -->
+                    <div class="text-end">
+                        <span t-esc="datetime.datetime.now()" t-options="{'widget': 'datetime'}"/>
+                    </div>
+                    <div class="text-center">
+                        <h1>COURSES</h1>
+                    </div>
+                    <table class="table table-hover">
+                        <thead>
+                            <!-- Enlloc de posar align="left" per tota la fila, es pot especificar per cada th:-->
+                            <!-- th  style="text-align:left;" i usar left/right/center segons convingui -->
+                            <tr align="left">
+                                <th>Name</th>
+                                <th>Hours</th>
+                                <th>Manager</th>
+                                <th>Phone</th>
+                                <th>Thematic</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Per cada curs -->
+                            <tr t-foreach="docs" t-as="course">
+                                <td>
+                                    <span t-field="course.name"/>
+                                </td>
+                                <td>
+                                    <span t-field="course.hours"/>
+                                </td>
+                                <td>
+                                    <span t-field="course.manager_id.display_name"/>
+                                </td>
+                                <td>
+                                    <span t-field="course.manager_phone"/>
+                                </td>
+                                <td>
+                                    <span t-field="course.thematic_id.name"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- Action del report de Professors -->
+    <record id="action_qweb_teacher_card" model="ir.actions.report">
+        <field name="name">Teacher Card</field>
+        <field name="model">school.teacher</field>
+        <field name="report_type">qweb-pdf</field>
+        <!-- Usar qweb-html si es vol generar en html-->
+        <field name="report_name">school.report_teacher_card_template</field>
+        <field name="report_file">school.report_teacher_card_template</field>
+        <field name="model_id" ref="school.model_school_teacher"/>
+        <field name="binding_model_id" ref="school.model_school_teacher"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Template del report de Professors -->
+    <template id="report_teacher_card_template">
+        <t t-call="web.html_container">
+            <!-- Per cada professor -->
+            <t t-foreach="docs" t-as="teacher">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family:sans-serif">
+                        <!--Necessari indicar aquest style per a que la renderització cap a PDF mostri els textos marcats en negreta                            -->
+                        <div class="text-end">
+                            <span t-esc="datetime.datetime.now()" t-options="{'widget': 'datetime'}"/>
+                        </div>
+                        <div class="text-center">
+                            <h1>TEACHER</h1>
+                        </div>
+                        <table class="table table-condensed table-borderless">  <!-- borderless per eliminar les vores interiors -->
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>Name:</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <span t-field="teacher.display_name"/>
+                                    </td>
+                                    <td>
+                                        <strong>TIN:</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <span t-field="teacher.tin"/>
+                                    </td>
+                                    <!-- Si el professor té una foto -->
+                                    <t t-if="teacher.photo">
+                                        <td rowspan="4">
+                                            <img height="180" t-attf-src="data:image/*;base64,{{teacher.photo}}"/>
+                                        </td>
+                                    </t>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Birtddate:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="teacher.birthdate"/>
+                                    </td>
+                                    <td>
+                                        <strong>Age:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="teacher.age"/>
+                                    </td>
+                                    <td>
+                                        <strong>eMail:</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <span t-field="teacher.email"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Gender:</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <span t-field="teacher.gender"/>
+                                    </td>
+                                    <td>
+                                        <strong>Phone:</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <span t-field="teacher.phone"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Citizenship:</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <span t-field="teacher.country_id"/>
+                                    </td>
+                                    <td>
+                                        <strong>Salary:</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <span t-field="teacher.salary"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- Si el professor té assignatures autoritzades -->
+                        <t t-if="len(teacher.subject_ids)>0">
+                            <h3>
+                                <u>Subjects authorized</u>
+                            </h3>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr align="left">
+                                        <th>Name</th>
+                                        <th>Hours</th>
+                                        <th>Active?</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Per cada assignatura -->
+                                    <tr t-foreach="teacher.subject_ids" t-as="s">
+                                        <td>
+                                            <span t-field="s.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="s.hours"/>
+                                        </td>
+                                        <!-- Si l'assignatura està activa -->
+                                        <t t-if="s.active">
+                                            <td>Yes</td>
+                                        </t>
+                                        <!-- Si no està activa -->
+                                        <t t-else="">
+                                            <td>No</td>
+                                        </t>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+                        <!-- Si el professor NO té assignatures autoritzades -->
+                        <t t-else="">
+                            <u>This teacher has no authorized subjects</u>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

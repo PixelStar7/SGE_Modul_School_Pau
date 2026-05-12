@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Action del report de Course Card -->
+    <record id="action_qweb_course_card" model="ir.actions.report">
+        <field name="name">Course with Editions</field>
+        <field name="model">school.course</field>
+        <field name="report_type">qweb-pdf</field>
+        <!-- Usar qweb-html si es vol generar en html-->
+        <field name="report_name">school.report_course_card_template</field>
+        <field name="report_file">school.report_course_card_template</field>
+        <field name="model_id" ref="school.model_school_course"/>
+        <field name="binding_model_id" ref="school.model_school_course"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Template del report de Course Card -->
+    <template id="report_course_card_template">
+        <t t-call="web.html_container">
+            <!-- Per cada curs -->
+            <t t-foreach="docs" t-as="course">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family:sans-serif">
+                        <!--Necessari indicar aquest style per a que la renderització cap a PDF mostri els textos marcats en negreta                            -->
+                        <div class="text-end">
+                            <span t-esc="datetime.datetime.now()" t-options="{'widget': 'datetime'}"/>
+                        </div>
+                        <div class="text-center">
+                            <h1>COURSE</h1>
+                        </div>
+                        <table class="table table-condensed table-borderless">  <!-- borderless per eliminar les vores interiors -->
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>Name:</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <span t-field="course.name"/>
+                                    </td>
+                                    <td colspan="2">
+                                        <strong>Summary</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Hours:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="course.hours"/>
+                                    </td>
+                                    <td>
+                                        <strong>Active:</strong>
+                                    </td>
+                                    <!-- Si el curs està actiu -->
+                                    <t t-if="course.active">
+                                        <td>Yes</td>
+                                    </t>
+                                    <!-- Si no està actiu -->
+                                    <t t-else="">
+                                        <td>No</td>
+                                    </t>
+                                    <td colspan="2" rowspan="3">
+                                        <span t-raw="course.summary"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Thematic:</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <span t-field="course.thematic_id"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Manager:</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <span t-field="course.manager_id"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>eMail:</strong>
+                                    </td>
+                                    <td colspan="3">
+                                        <span t-field="course.manager_id.email"/>
+                                    </td>
+                                    <td>
+                                        <strong>Phone:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="course.manager_id.phone"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- Si el curs NO té edicions -->
+                        <t t-if="len(course.edition_ids)==0">
+                            <u>This course has no editions</u>
+                        </t>
+                        <!-- Si el curs té edicions -->
+                        <t t-else="">
+                            <h3>
+                                <u>Editions</u>
+                            </h3>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr align="left">
+                                        <th>Name</th>
+                                        <th>Init date</th>
+                                        <th>End date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Per cada edició del curs -->
+                                    <tr t-foreach="course.edition_ids" t-as="e">
+                                        <td>
+                                            <span t-field="e.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="e.date_start"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="e.date_end"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
