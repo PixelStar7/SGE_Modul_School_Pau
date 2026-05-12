@@ -3,7 +3,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
-
+# TransientModel: model que no es guarda a la base de dades, només existeix durant la sessió de l'usuari
 class SchoolHowManyEditionsBetweenDates(models.TransientModel):
     _name = 'school.how.many.editions.between.dates'
     _description = 'Wizard to count editions between dates'
@@ -12,12 +12,12 @@ class SchoolHowManyEditionsBetweenDates(models.TransientModel):
     start_date_from = fields.Date('Start Date From', required=True)
     start_date_until = fields.Date('Start Date Until', required=True)
     n_editions = fields.Integer('#Editions', readonly=True)
-    state = fields.Selection([('init', 'Init'), ('done', 'Done')], 'State', default='init')
 
     # El camp "state" és especial
     # L'usarem per indicar quins camps s'invisibilitzen, però en aquest cas podria tenir un altre nom
-
-    @api.constrains('date_start', 'date_end')
+    state = fields.Selection([('init', 'Init'), ('done', 'Done')], 'State', default='init')
+    
+    @api.constrains('start_date_from', 'start_date_until')
     def _check_dates(self):
         for obj in self:
             if obj.start_date_until < obj.start_date_from:
