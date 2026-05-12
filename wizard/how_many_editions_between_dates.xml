@@ -1,0 +1,57 @@
+<odoo>
+    <data>
+
+        <menuitem name="Wizards" id="menu_school_wizards" parent="menu_configuration"
+                  sequence="99"/>
+
+        <record model="ir.ui.view" id="view_school_wizard_count_editions">
+            <field name="name">school.wizard.count.editions</field>
+            <field name="model">school.how.many.editions.between.dates</field>
+            <field name="arch" type="xml">
+                <form string="Count Editions Between Dates">
+                    <sheet>
+                        <header>
+                            <field name="state" widget="statusbar" statusbar_visible="init,done"/>
+                        </header>
+                        <!-- En aquest cas hem volgut visualitzar la variable state, però no té per què -->
+                        <!-- El camp state, encara que no es visualitzi, ha de residir dins la vista per poder-lo -->
+                        <!-- utilitzar en les condicions d'invisibilitat -->
+                        <group invisible="state == 'done'">
+                            <group colspan="4">
+                                <field name="course_id" widget="selection"/>
+                            </group>
+                            <group>
+                                <field name="start_date_from"/>
+                            </group>
+                            <group>
+                                <field name="start_date_until"/>
+                            </group>
+                        </group>
+                        <group invisible="state == 'init'">
+                            <field name="n_editions"/>
+                        </group>
+                        <footer>
+                            <button string="Execute" name="count_editions" type="object" invisible="state == 'done'" />
+                            <button string="Cancel" special="cancel" invisible="state == 'done'"/>
+                            <button string="Close" special="cancel" invisible="state == 'init'"/>
+                        </footer>
+                        <!--                        <field name="state" invisible="1"/>-->
+                        <!-- Si no l'haguessim posat en el header, el podriem tenir aquí "invisible" -->
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_school_wizard_count_editions">
+            <field name="name">How many editions between dates</field>
+            <field name="res_model">school.how.many.editions.between.dates</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem name="How many editions between dates" id="menu_school_wizard_count_editions"
+                  parent="menu_school_wizards" action="action_school_wizard_count_editions"/>
+
+
+    </data>
+</odoo>
