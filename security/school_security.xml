@@ -31,12 +31,12 @@
     <!-- Per assignar el group "manager" a l'usuari "admin" -->
     <function model="res.users" name="write">
         <value eval="[ref('base.user_admin')]"/>
-        <value eval="{'groups_id': [(4, ref('school.group_school_manager'))]}"/>
+        <value eval="{'groups_id': [(4, ref('school_pau.group_school_manager'))]}"/>
     </function>
 
     <!-- Per assignar el group "manager" a l'usuari "OdooBoot" -->
     <function model="res.users" name="write">
         <value eval="[ref('base.user_root')]"/>
-        <value eval="{'groups_id': [(4, ref('school.group_school_manager'))]}"/>
+        <value eval="{'groups_id': [(4, ref('school_pau.group_school_manager'))]}"/>
     </function>
 </odoo>
