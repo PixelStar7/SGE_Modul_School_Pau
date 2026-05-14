@@ -17,8 +17,8 @@
     'website': 'http://www.infomila.info',
     'depends': ['base'],
     'data': [
-        'security/ir.model.access.csv',
-        'security/school_security.xml',
+        'security/school_security.xml', # Primer la definció dels grups de seguretat 
+        'security/ir.model.access.csv', # Després les regles d'accés als models
         'views/school_views.xml',
         'report/school_report_qweb.xml',
         'report/exercici_report_qweb.xml',
