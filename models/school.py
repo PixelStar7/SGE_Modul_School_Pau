@@ -307,7 +307,7 @@ class SchoolTeacher(models.Model):
     
     def _auto_init(self):
         res = super(SchoolTeacher, self)._auto_init()
-        tools.create_unique_index(self._cr, 'school_teacher_unique_tin', self.table, [('lower(tin)')])
+        tools.create_unique_index(self._cr, 'school_teacher_unique_tin', self._table, [('lower(tin)')])
         return res
     
     # Mètodes Compute per als comptadors

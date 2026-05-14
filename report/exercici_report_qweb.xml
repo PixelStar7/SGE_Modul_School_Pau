@@ -21,7 +21,7 @@
             <t t-foreach="docs" t-as="course">
                 <t t-call="web.external_layout">
                     <div class="page" style="font-family:sans-serif">
-                        <!--Necessari indicar aquest style per a que la renderització cap a PDF mostri els textos marcats en negreta                            -->
+                        <!--Necessari indicar aquest style per a que la renderització cap a PDF mostri els textos marcats en negreta -->
                         <div class="text-end">
                             <span t-esc="datetime.datetime.now()" t-options="{'widget': 'datetime'}"/>
                         </div>
