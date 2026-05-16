@@ -369,7 +369,7 @@ class SchoolTeacher(models.Model):
             history = {}
             history['teacher_id'] = teacher.id
             history['user_id'] = self.env.uid # L'usuari connectat ara mateix
-            history['date'] = momentActual.strftime('&Y-%m-%d')
+            history['date'] = momentActual.strftime('%Y-%m-%d')
             history['time_s'] = momentActual.strftime('%H:%M')
             history['time_f'] = int(momentActual.strftime('%H')) + float(momentActual.strftime('%M')) / 60
             history['salary'] = teacher.salary
