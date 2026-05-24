@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+    <data noupdate="1">
+        
+        <!-- Teacher jrr Demo imatge en Base64 a l'altre arxiu -->
+        <record id="teacher_jrr" model="school.teacher">
+            <field name="first_name">Josep</field>
+            <field name="last_name">Rodriguez Rodriguez</field>
+            <field name="birthdate">1970-12-25</field>
+            <field name="tin">11111111Z</field>
+            <field name="gender">male</field>
+            <field name="salary">3000</field>
+            <field name="email">jrr@school.cat</field>
+            <field name="country_id" ref="base.es"/>
+        </record>
+    
+        <!-- Teacher mpp Demo imatge en carpeta -->
+        <record id="teacher_mpp" model="school.teacher">
+            <field name="first_name">Maria</field>
+            <field name="last_name">Peres Peres</field>
+            <field name="birthdate">1980-05-05</field>
+            <field name="tin">22222222Y</field>
+            <field name="gender">female</field>
+            <field name="salary">2800</field>
+            <field name="email">mpp@school.cat</field>
+            <field name="country_id" ref="base.pt"/>
+            <field name="photo" type="base64"
+                   file="school/data/images/teacher_mpp.jpg"/>
+        </record>
+
+        <!-- Temàtiques Demo -->
+        <record id="thematic_com" model="school.thematic">
+            <field name="name">Computing</field>
+        </record>
+        <record id="thematic_sys" model="school.thematic">
+            <field name="name">Computer systems</field>
+            <field name="parent_id" ref="thematic_com"/>
+        </record>
+        <record id="thematic_pro" model="school.thematic">
+            <field name="name">Programming</field>
+            <field name="parent_id" ref="thematic_com"/>
+        </record>
+        <record id="thematic_cpl" model="school.thematic">
+            <field name="name">Programming Cross Platform</field>
+            <field name="parent_id" ref="thematic_pro"/>
+        </record>
+        <record id="thematic_web" model="school.thematic">
+            <field name="name">Programming Web</field>
+            <field name="parent_id" ref="thematic_pro"/>
+        </record>
+
+
+        <!-- Cursos Demo -->
+        <record id="course_cpl" model="school.course">
+            <field name="name">Cross-platform application development</field>
+            <field name="hours">2000</field>
+            <field name="manager_id" ref="teacher_jrr"/>
+            <field name="thematic_id" ref="thematic_cpl"/>
+            <field name="summary">To learn...</field>
+        </record>
+        <record id="course_web" model="school.course">
+            <field name="name">Web application development</field>
+            <field name="hours">2000</field>
+            <field name="manager_id" ref="teacher_mpp"/>
+            <field name="thematic_id" ref="thematic_web"/>
+            <field name="summary">To learn...</field>
+        </record>
+
+
+        <!-- Assignatures Demo -->
+        <record id="subject_cs" model="school.subject">
+            <field name="name">Computer systems</field>
+            <field name="hours">198</field>
+            <field name="teacher_ids" eval="[(4,ref('teacher_jrr')),
+                                       (4,ref('teacher_mpp'))]"/>
+        </record>
+        <record id="subject_db" model="school.subject">
+            <field name="name">Database</field>
+            <field name="hours">198</field>
+            <field name="teacher_ids" eval="[(4,ref('teacher_mpp'))]"/>
+        </record>
+        <record id="subject_ad" model="school.subject">
+            <field name="name">Access to data</field>
+            <field name="hours">132</field>
+            <field name="teacher_ids" eval="[(4,ref('teacher_mpp'))]"/>
+        </record>
+        <record id="subject_wdc" model="school.subject">
+            <field name="name">Web development in client environment</field>
+            <field name="hours">165</field>
+            <field name="teacher_ids" eval="[(4,ref('teacher_jrr'))]"/>
+        </record>
+
+
+        <!-- School Course Subject Demo -->
+        <record id="scs_cpl_cs" model="school.course.subject">
+            <field name="course_id" ref="course_cpl"/>
+            <field name="subject_id" ref="subject_cs"/>
+            <field name="number">1</field>
+        </record>
+        <record id="scs_web_cs" model="school.course.subject">
+            <field name="course_id" ref="course_web"/>
+            <field name="subject_id" ref="subject_cs"/>
+            <field name="number">1</field>
+        </record>
+        <record id="scs_cpl_ad" model="school.course.subject">
+            <field name="course_id" ref="course_cpl"/>
+            <field name="subject_id" ref="subject_ad"/>
+            <field name="number">6</field>
+        </record>
+        <record id="scs_web_wdc" model="school.course.subject">
+            <field name="course_id" ref="course_web"/>
+            <field name="subject_id" ref="subject_wdc"/>
+            <field name="number">6</field>
+        </record>
+        <record id="scs_cpl_db" model="school.course.subject">
+            <field name="course_id" ref="course_cpl"/>
+            <field name="subject_id" ref="subject_db"/>
+            <field name="number">2</field>
+        </record>
+        <record id="scs_web_db" model="school.course.subject">
+            <field name="course_id" ref="course_web"/>
+            <field name="subject_id" ref="subject_db"/>
+            <field name="number">2</field>
+        </record>
+    
+
+        <!-- School Course Edition Demo -->
+        <record id="sce_cpl_year" model="school.course.edition">
+            <field name="course_id" ref="course_cpl"/>
+            <field name="name" eval="'Edition '+str(datetime.today().year)"/>
+            <field name="date_start" eval="datetime(datetime.today().year,9,12)"/>  <field name="date_end" eval="datetime(datetime.today().year+1,5,31)"/>  </record>
+        <record id="sce_web_year" model="school.course.edition">
+            <field name="course_id" ref="course_web"/>
+            <field name="name" eval="'Edition '+str(datetime.today().year)"/>
+            <field name="date_start" eval="datetime(datetime.today().year,9,12)"/>
+            <field name="date_end" eval="datetime(datetime.today().year+1,5,31)"/>
+        </record>
+    
+
+        <!-- Teaching Demo -->
+        <record id="teaching01" model="school.teaching">
+            <field name="edition_id" ref="sce_cpl_year"/>
+            <field name="subject_id" ref="subject_cs"/>
+            <field name="teacher_id" ref="teacher_mpp"/>
+        </record>
+
+        <record id="teaching02" model="school.teaching">
+            <field name="edition_id" ref="sce_cpl_year"/>
+            <field name="subject_id" ref="subject_ad"/>
+            <field name="teacher_id" ref="teacher_mpp"/>
+        </record>
+
+        <record id="teaching03" model="school.teaching">
+            <field name="edition_id" ref="sce_cpl_year"/>
+            <field name="subject_id" ref="subject_wdc"/>
+            <field name="teacher_id" ref="teacher_jrr"/>
+        </record>
+
+    </data>
+</odoo>

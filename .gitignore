@@ -16,7 +16,6 @@ odoo.conf
 # Carpetas de datos temporales de Odoo (si las tienes ahí)
 filestore/
 sessions/
-/data/
 
 # --- IDEs (Archivos de configuración de PyCharm/VSCode) ---
 # Esto es personal tuyo, no le interesa a nadie más
