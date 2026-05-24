@@ -26,7 +26,10 @@
         'views/school_year_course_qty_editions.xml',
         'views/school_dashboards.xml'
     ],
-    'demo': [],
+    'demo': [
+        # 'data/school_demo.xml',
+        # 'data/school_images_demo.xml'
+    ],
     'installable': True,
     'application': True,
     'license': 'LGPL-3',
