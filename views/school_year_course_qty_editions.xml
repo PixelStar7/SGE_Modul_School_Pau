@@ -1,0 +1,44 @@
+<odoo>
+
+    <!-- Menu Statistics -->
+    <menuitem name="Statistics" id="menu_statistics"
+              parent="menu_root" sequence="88"/>
+  
+    <!-- Vista List Statistics -->
+    <record model="ir.ui.view" id="view_year_course_qty_editions_list">
+      <field name="name">view.year.course.qty.editions.list</field>
+      <field name="model">school.year.course.qty.editions</field>
+      <field name="arch" type="xml">
+        <list string="Qty. Editions of Course" delete="0" create="0">
+          <field name="year"/>
+          <field name="course_name"/>
+          <field name="qty_editions"/>
+        </list>
+      </field>
+    </record>
+
+    <!-- Vista Graph Statistics -->
+    <record model="ir.ui.view" id="view_year_course_qty_editions_graph">
+      <field name="name">view.year.course.qty.editions.graph</field>
+      <field name="model">school.year.course.qty.editions</field>
+      <field name="arch" type="xml">
+        <graph string="Qty. Editions of Course">
+          <field name="year"/>
+          <field name="course_name"/>
+          <field name="qty_editions" type="measure"/> <!-- type="measure per mesurar per qty_editions" -->
+        </graph>
+      </field>
+    </record>
+    
+    <!-- Action Statistics -->
+    <record model="ir.actions.act_window" id="action_year_course_qty_editions">
+      <field name="name">Qty. Editions of Course</field>
+      <field name="res_model">school.year.course.qty.editions</field>
+      <field name="view_mode">list,graph</field>
+    </record>
+    
+    <!-- Submenu Statistics -->
+    <menuitem name="Qty. Editions of Course" id="menu_year_course_qty_editions"
+              parent="menu_statistics" action="action_year_course_qty_editions" sequence="10"/>
+    
+</odoo>

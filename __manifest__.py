@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'School',
-    'version': '17.0',
+    'version': '23.0',
     'category': 'Education',
     'summary': 'School Management',
     'description': """
@@ -15,7 +15,7 @@
     """,
     'author': 'Group DAM2 - Course 2025-2026',
     'website': 'http://www.infomila.info',
-    'depends': ['base'],
+    'depends': ['base', 'board', 'mail'],
     'data': [
         'security/school_security.xml', # Primer la definció dels grups de seguretat 
         'security/ir.model.access.csv', # Després les regles d'accés als models
@@ -23,6 +23,8 @@
         'report/school_report_qweb.xml',
         'report/exercici_report_qweb.xml',
         'wizard/how_many_editions_between_dates.xml',
+        'views/school_year_course_qty_editions.xml',
+        'views/school_dashboards.xml'
     ],
     'demo': [],
     'installable': True,
