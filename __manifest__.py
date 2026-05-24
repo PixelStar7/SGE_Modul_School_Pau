@@ -27,8 +27,8 @@
         'views/school_dashboards.xml'
     ],
     'demo': [
-        # 'data/school_demo.xml',
-        # 'data/school_images_demo.xml'
+        'data/school_demo.xml',
+        'data/school_images_demo.xml'
     ],
     'installable': True,
     'application': True,
