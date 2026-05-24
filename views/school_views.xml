@@ -303,17 +303,33 @@
         </field>
      </record>
 
-    <!-- Acció de Professors -->
-    <record model="ir.actions.act_window" id="school_teacher_action">
+    <!-- Accions i Submenus de Professors -->
+
+    <!-- Acció per al grup Manager -->
+    <record model="ir.actions.act_window" id="school_teacher_action_manager">
         <field name="name">Teachers</field>
         <field name="res_model">school.teacher</field>
-        <field name="view_mode">list,calendar,form</field>
-        <!-- Desactivem el camp active per a que surtin tots els professors, encara que estiguin arxivats o desactivats -->
-        <field name="context">{'active_test': False}</field>
+        <field name="view_mode">list,form,calendar,graph</field>
+        <field name="context">{'active_test': True,
+                               'search_default_active': True}</field>
     </record>
+    
+    <!-- Submenu per al grup Manager -->
+    <menuitem name="Teachers" id="menu_teachers_manager" parent="menu_root" sequence="50"
+              action="school_teacher_action_manager" groups="group_school_manager"/>
 
-    <!-- Submenu de Professors -->
-    <menuitem name="Teachers" id="menu_teachers" parent="menu_root" sequence="50" action="school_teacher_action"/>
+    <!-- Acció per al grup NO-Manager -->
+    <record model="ir.actions.act_window" id="school_teacher_action_no_manager">
+        <field name="name">Teachers</field>
+        <field name="res_model">school.teacher</field>
+        <field name="view_mode">list,form,calendar</field>
+        <field name="context">{'active_test': True,
+                               'search_default_active': True}</field>
+    </record>
+    
+    <!-- Submenu per al grup NO-Manager -->
+    <menuitem name="Teachers" id="menu_teachers" parent="menu_root" sequence="50"
+              action="school_teacher_action_no_manager" groups="group_school_teacher"/>
 
 
     <!-- GESTIÓ DE TEMÀTIQUES -->
